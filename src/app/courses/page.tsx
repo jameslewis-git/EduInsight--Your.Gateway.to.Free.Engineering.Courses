@@ -6,7 +6,7 @@ import { popularCourses, topRatedCourses, coursesBySubject, Course } from "@/lib
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { getSubject } from "@/lib/data/subjects";
 import { getCourses } from "@/lib/data";
 
@@ -280,297 +280,232 @@ const udemyFreeCourses: Course[] = [
   }
 ];
 
-export default function CoursesPage() {
+function FilteredCourses() {
   const searchParams = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
-  const [title, setTitle] = useState("Courses");
-  const [description, setDescription] = useState("");
-
+  const [title, setTitle] = useState<string>("Free Courses");
+  const [description, setDescription] = useState<string>("Browse our collection of free courses from top providers around the world.");
+  
   useEffect(() => {
-    const type = searchParams.get("type");
-    const subjectId = searchParams.get("subject");
-    const category = searchParams.get("category");
-    const provider = searchParams.get("provider");
-    const sort = searchParams.get("sort");
+    const type = searchParams.get('type');
+    const category = searchParams.get('category');
+    const provider = searchParams.get('provider');
+    const subject = searchParams.get('subject');
     
-    let filtered: Course[] = [];
-    let pageTitle = "Courses";
-    let pageDescription = "Explore our collection of high-quality free courses";
+    let filteredCourses: Course[] = [];
     
-    // Get expanded list of courses (original + additional)
-    const allFreePopularCourses = [...freePopularCourses, ...additionalFreeCourses.slice(0, 6)];
-    const allFreeTopRatedCourses = [...freeTopRatedCourses, ...additionalFreeCourses.slice(2, 8)];
-    
-    // Determine which courses to show based on parameters
-    if (provider) {
-      // If provider is specified, filter by provider
-      filtered = coursesByProvider[provider.toLowerCase()] || [];
-      
-      // If not enough courses, add more from the provider
-      if (filtered.length < 4) {
-        const providerName = provider.toLowerCase() === "edx" ? "edX" : 
-                            provider.toLowerCase() === "coursera" ? "Coursera" :
-                            provider.toLowerCase() === "harvard university" ? "Harvard University" :
-                            provider.toLowerCase() === "mit" ? "MIT" :
-                            provider.toLowerCase() === "yale university" ? "Yale University" :
-                            provider.toLowerCase();
-        
-        // Add additional courses for this provider
-        const additionalProviderCourses: Course[] = Array(4).fill(0).map((_, i) => ({
-          id: `provider-${provider.toLowerCase()}-${i}`,
-          title: `${providerName} Free Course ${i + 1}`,
-          provider: providerName.includes("University") ? "Coursera" : providerName,
-          institution: providerName.includes("University") ? providerName : `${providerName} Partner Institution`,
-          link: `${getProviderWebsite(providerName)}/courses/free-course-${i+1}`,
-          image: providerName === "Coursera" ? "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/https://coursera.s3.amazonaws.com/media/coursera-logo-square.png" :
-                 providerName === "edX" ? "https://prod-discovery.edx-cdn.org/organization/logos/2a73d2ce-c34a-4e08-8223-83bca9d2f01d-2cc8854c6fee.png" :
-                 providerName === "Udemy" ? "https://img-c.udemycdn.com/course/480x270/637930_9a22_24.jpg" :
-                 providerName === "Khan Academy" ? "https://cdn.kastatic.org/images/khan-logo-vertical-transparent.png" :
-                 providerName === "Harvard University" ? "https://prod-discovery.edx-cdn.org/organization/logos/44022f13-20df-4666-9111-cede3e5dc5b6-2cc39992c67a.png" :
-                 providerName === "Yale University" ? "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/https://s3.amazonaws.com/coursera-course-photos/7e/aff5b0f54c11e7ad7ebd6b426fec6b/Logo_TheScienceofWell-Being.png" :
-                 providerName === "MIT" ? "https://prod-discovery.edx-cdn.org/organization/logos/2a73d2ce-c34a-4e08-8223-83bca9d2f01d-2cc8854c6fee.png" :
-                 `https://via.placeholder.com/400x225?text=${providerName}+Course`,
-          rating: 4.5 + (Math.random() * 0.4),
-          reviewCount: 1000 + Math.floor(Math.random() * 5000),
-          category: ["Computer Science", "Data Science", "Business", "Programming"][Math.floor(Math.random() * 4)],
-          isFree: true
-        }));
-        
-        filtered = [...filtered, ...additionalProviderCourses];
-      }
-      
-      // Handle special case for Udemy
-      if (provider.toLowerCase() === "udemy") {
-        filtered = [...filtered, ...udemyFreeCourses];
-      }
-      
-      pageTitle = `${provider} Courses`;
-      pageDescription = `Explore our collection of free courses from ${provider}`;
-    } else if (subjectId) {
-      const subject = getSubject(subjectId);
-      
-      if (!subject) {
-        // Handle subject not found
-        filtered = allFreePopularCourses;
-      } else {
-        // Get courses for this subject
-        let subjectCourses = freeSubjectCourses[subjectId] || [];
-        
-        // If not enough courses, try to add more based on the subject's category
-        if (subjectCourses.length < 4 && subject.category) {
-          const categoryCourses = coursesByCategory[subject.category]
-            .filter(c => !subjectCourses.some(sc => sc.id === c.id))
-            .slice(0, 4);  // Add up to 4 additional courses
-          
-          subjectCourses = [...subjectCourses, ...categoryCourses];
-        }
-        
-        // Add more courses based on subject's topics
-        if (subject.topics) {
-          subject.topics.forEach(topic => {
-            // Map topic to a category if applicable
-            let topicToCategory = null;
-            
-            if (topic.toLowerCase().includes("program")) topicToCategory = "Programming";
-            else if (topic.toLowerCase().includes("data")) topicToCategory = "Data Science";
-            else if (topic.toLowerCase().includes("business")) topicToCategory = "Business";
-            else if (topic.toLowerCase().includes("design")) topicToCategory = "Art & Design";
-            else if (topic.toLowerCase().includes("develop")) topicToCategory = "Web Development";
-            
-            if (topicToCategory && coursesByCategory[topicToCategory]) {
-              // Add additional courses from matching categories
-              const additionalForTopic = coursesByCategory[topicToCategory]
-                .filter(c => !subjectCourses.some(sc => sc.id === c.id))
-                .slice(0, 4);  // Add up to 4 additional courses per topic
-              
-              subjectCourses = [...subjectCourses, ...additionalForTopic];
-            }
-          });
-        }
-        
-        // If still not enough courses, generate more
-        if (subjectCourses.length < 6) {
-          const subjectName = subject.name;
-          const providers = ["Coursera", "edX", "Udemy", "Khan Academy"];
-          
-          // Generate additional courses for this subject
-          const additionalSubjectCourses: Course[] = Array(4).fill(0).map((_, i) => {
-            const randomProvider = providers[Math.floor(Math.random() * providers.length)];
-            return {
-              id: `subject-${subjectId}-${i}`,
-              title: `${subjectName} Course ${i + 1}`,
-              provider: randomProvider,
-              institution: `${randomProvider} Partner Institution`,
-              link: `${getProviderWebsite(randomProvider)}/courses/${subjectName.toLowerCase().replace(/\s+/g, "-")}-course-${i+1}`,
-              image: randomProvider === "Coursera" ? "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/https://coursera.s3.amazonaws.com/media/coursera-logo-square.png" :
-                     randomProvider === "edX" ? "https://prod-discovery.edx-cdn.org/organization/logos/2a73d2ce-c34a-4e08-8223-83bca9d2f01d-2cc8854c6fee.png" :
-                     randomProvider === "Udemy" ? "https://img-c.udemycdn.com/course/480x270/637930_9a22_24.jpg" :
-                     randomProvider === "Khan Academy" ? "https://cdn.kastatic.org/images/khan-logo-vertical-transparent.png" :
-                     `https://via.placeholder.com/400x225?text=${randomProvider}+Course`,
-              rating: 4.5 + (Math.random() * 0.4),
-              reviewCount: 1000 + Math.floor(Math.random() * 5000),
-              category: subject.category || "Education",
-              isFree: true
-            };
-          });
-          
-          subjectCourses = [...subjectCourses, ...additionalSubjectCourses];
-        }
-        
-        filtered = subjectCourses;
-        pageTitle = `${subject.name} Courses`;
-        pageDescription = `Explore our collection of free ${subject.name.toLowerCase()} courses`;
-      }
+    if (type === 'popular') {
+      filteredCourses = freePopularCourses;
+      setTitle("Popular Free Courses");
+      setDescription("The most popular free courses on our platform, rated by students like you.");
+    } else if (type === 'top-rated') {
+      filteredCourses = freeTopRatedCourses;
+      setTitle("Top-Rated Free Courses");
+      setDescription("Highest-rated free courses from leading educational institutions and providers.");
     } else if (category) {
-      // Get courses by category
-      filtered = coursesByCategory[category] || [];
+      filteredCourses = coursesByCategory[category] || [];
+      setTitle(`Free ${category} Courses`);
+      setDescription(`Explore free courses in ${category} from top educational providers.`);
+    } else if (provider) {
+      filteredCourses = coursesByProvider[provider.toLowerCase()] || [];
+      setTitle(`Free Courses from ${provider}`);
+      setDescription(`Explore free courses offered by ${provider}, one of our trusted educational partners.`);
+    } else if (subject) {
+      const subjectData = getSubject(subject);
+      filteredCourses = freeSubjectCourses[subject] || [];
       
-      // If not enough courses, generate more for this category
-      if (filtered.length < 4) {
-        const providers = ["Coursera", "edX", "Udemy", "Khan Academy"];
+      if (filteredCourses.length < 8) {
+        const subjectName = subjectData?.name || subject;
+        const additionalCount = 8 - filteredCourses.length;
         
-        // Generate additional courses for this category
-        const additionalCategoryCourses: Course[] = Array(4).fill(0).map((_, i) => {
-          const randomProvider = providers[Math.floor(Math.random() * providers.length)];
-          return {
-            id: `category-${category.toLowerCase().replace(/\s+/g, "-")}-${i}`,
-            title: `${category} Course ${i + 1}`,
+        for (let i = 0; i < additionalCount; i++) {
+          const randomProvider = ['Coursera', 'edX', 'Khan Academy', 'Udacity', 'Udemy'][Math.floor(Math.random() * 5)];
+          const randomInstitution = ['Stanford University', 'MIT', 'Harvard University', 'University of Michigan', 'Yale University'][Math.floor(Math.random() * 5)];
+          const randomRating = (4 + Math.random()).toFixed(1);
+          const randomReviews = Math.floor(Math.random() * 10000) + 1000;
+          
+          filteredCourses.push({
+            id: `generated-${subject}-${i}`,
+            title: `${subjectName} - Advanced Course ${i + 1}`,
             provider: randomProvider,
-            institution: `${randomProvider} Partner Institution`,
-            link: `${getProviderWebsite(randomProvider)}/courses/${category.toLowerCase().replace(/\s+/g, "-")}-course-${i+1}`,
-            image: randomProvider === "Coursera" ? "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/https://coursera.s3.amazonaws.com/media/coursera-logo-square.png" :
-                   randomProvider === "edX" ? "https://prod-discovery.edx-cdn.org/organization/logos/2a73d2ce-c34a-4e08-8223-83bca9d2f01d-2cc8854c6fee.png" :
-                   randomProvider === "Udemy" ? "https://img-c.udemycdn.com/course/480x270/637930_9a22_24.jpg" :
-                   randomProvider === "Khan Academy" ? "https://cdn.kastatic.org/images/khan-logo-vertical-transparent.png" :
-                   `https://via.placeholder.com/400x225?text=${randomProvider}+Course`,
-            rating: 4.5 + (Math.random() * 0.4),
-            reviewCount: 1000 + Math.floor(Math.random() * 5000),
-            category: category,
-            isFree: true
-          };
-        });
-        
-        filtered = [...filtered, ...additionalCategoryCourses];
+            institution: randomInstitution,
+            link: getProviderWebsite(randomProvider) + "/course/" + subject.toLowerCase().replace(/\s+/g, '-'),
+            image: `/images/placeholder-course-${(i % 4) + 1}.jpg`,
+            rating: parseFloat(randomRating),
+            reviewCount: randomReviews,
+            category: subjectData?.category || "Computer Science",
+            isFree: true,
+            description: `An in-depth course on ${subjectName} covering advanced concepts and practical applications.`
+          });
+        }
       }
       
-      pageTitle = `${category} Courses`;
-      pageDescription = `Explore our collection of free ${category.toLowerCase()} courses`;
-    } else if (type === "top-rated") {
-      // Show top-rated courses
-      filtered = allFreeTopRatedCourses;
-      pageTitle = "Top-Rated Free Courses";
-      pageDescription = "Free courses with the highest ratings from our users";
+      setTitle(`Free ${subjectData?.name || subject} Courses`);
+      setDescription(subjectData?.description || `Explore free courses in ${subject} from top educational providers.`);
     } else {
-      // Default to popular courses
-      filtered = allFreePopularCourses;
-      pageTitle = "Popular Free Courses";
-      pageDescription = "Join millions of learners from around the world taking free courses on EduInsight";
+      filteredCourses = [...freePopularCourses, ...freeTopRatedCourses];
+      filteredCourses = filteredCourses.filter((course, index, self) =>
+        index === self.findIndex((c) => c.id === course.id)
+      );
     }
     
-    // Override with sort parameter if present
-    if (sort === "popular" && subjectId) {
-      const subject = getSubject(subjectId);
-      if (subject) {
-        pageTitle = `Popular ${subject.name} Courses`;
-        
-        // Get subject's popular free courses plus additions
-        let popularForSubject = subject.popular?.filter(course => course.isFree === true) || [];
-        
-        // Add more popular courses based on subject's topics
-        if (subject.topics) {
-          let topicRelatedCourses: Course[] = [];
-          
-          subject.topics.forEach(topic => {
-            const topicToCategory = topic.includes('Programming') ? 'Programming' : 
-                                  topic.includes('Web') ? 'Web Development' :
-                                  topic.includes('Data') ? 'Data Science' :
-                                  topic.includes('Marketing') ? 'Marketing' :
-                                  topic.includes('Finance') ? 'Finance' :
-                                  topic.includes('Management') ? 'Business' :
-                                  topic.includes('Design') ? 'Art & Design' : null;
-            
-            if (topicToCategory && coursesByCategory[topicToCategory]) {
-              // Add course if it has high rating and isn't already included
-              const highRatedForTopic = coursesByCategory[topicToCategory]
-                .filter(c => c.rating && c.rating >= 4.5)
-                .filter(c => !popularForSubject.some(sc => sc.id === c.id))
-                .slice(0, 3);  // Limit per topic
-              
-              topicRelatedCourses = [...topicRelatedCourses, ...highRatedForTopic];
-            }
-          });
-          
-          // Add the additional topic-related courses
-          popularForSubject = [...popularForSubject, ...topicRelatedCourses];
-        }
-        
-        filtered = popularForSubject;
-      }
-    }
-    
-    // Sort courses by rating (if ratings exist)
-    filtered = filtered.sort((a, b) => {
-      if (a.rating && b.rating) {
-        return b.rating - a.rating;
-      }
-      return 0;
-    });
-    
-    // Remove duplicates (if any)
-    filtered = filtered.filter((course, index, self) => 
-      index === self.findIndex(c => c.id === course.id)
-    );
-    
-    setCourses(filtered);
-    setTitle(pageTitle);
-    setDescription(pageDescription);
+    setCourses(filteredCourses);
   }, [searchParams]);
   
-  // Decide where the "back" link should go
-  const getBackLink = () => {
-    const provider = searchParams.get("provider");
-    if (provider) {
-      return "/providers";
-    }
-    return "/";
-  };
-  
+  return (
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{title}</h1>
+          <p className="text-slate-600 dark:text-slate-300">{description}</p>
+        </div>
+        
+        <div>
+          {(searchParams.get('type') || searchParams.get('category') || searchParams.get('provider') || searchParams.get('subject')) && (
+            <Link 
+              href="/courses"
+              className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to all courses
+            </Link>
+          )}
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {courses.map(course => (
+          <CourseCard key={course.id} {...course} />
+        ))}
+      </div>
+      
+      {courses.length === 0 && (
+        <div className="text-center py-16">
+          <h3 className="text-xl font-semibold mb-2">No courses found</h3>
+          <p className="text-slate-600 dark:text-slate-300">Try adjusting your search criteria or browse all available courses.</p>
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function CoursesPage() {
   return (
     <MainLayout>
       <div className="container py-16">
-        <Link href={getBackLink()} className="text-primary hover:underline flex items-center gap-2 mb-8">
-          <ArrowLeft size={16} />
-          {searchParams.get("provider") ? "Back to providers" : "Back to home"}
-        </Link>
-        
-        <div className="max-w-3xl mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            {title}
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            {description}
-          </p>
-          <p className="mt-2 text-muted-foreground">
-            Showing {courses.length} free courses
-          </p>
-        </div>
-        
-        {courses.length === 0 ? (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-semibold mb-4">No free courses found</h2>
-            <p className="text-muted-foreground mb-8">We couldn't find any free courses matching your criteria.</p>
-            <Link href="/courses" className="text-primary hover:underline">
-              View all free courses
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {courses.map(course => (
-              <CourseCard key={course.id} {...course} />
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<div>Loading courses...</div>}>
+          <CoursesContent />
+        </Suspense>
       </div>
     </MainLayout>
+  );
+}
+
+function CoursesContent() {
+  const searchParams = useSearchParams();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [title, setTitle] = useState<string>("Free Courses");
+  const [description, setDescription] = useState<string>("Browse our collection of free courses from top providers around the world.");
+  
+  useEffect(() => {
+    const type = searchParams.get('type');
+    const category = searchParams.get('category');
+    const provider = searchParams.get('provider');
+    const subject = searchParams.get('subject');
+    
+    let filteredCourses: Course[] = [];
+    
+    if (type === 'popular') {
+      filteredCourses = freePopularCourses;
+      setTitle("Popular Free Courses");
+      setDescription("The most popular free courses on our platform, rated by students like you.");
+    } else if (type === 'top-rated') {
+      filteredCourses = freeTopRatedCourses;
+      setTitle("Top-Rated Free Courses");
+      setDescription("Highest-rated free courses from leading educational institutions and providers.");
+    } else if (category) {
+      filteredCourses = coursesByCategory[category] || [];
+      setTitle(`Free ${category} Courses`);
+      setDescription(`Explore free courses in ${category} from top educational providers.`);
+    } else if (provider) {
+      filteredCourses = coursesByProvider[provider.toLowerCase()] || [];
+      setTitle(`Free Courses from ${provider}`);
+      setDescription(`Explore free courses offered by ${provider}, one of our trusted educational partners.`);
+    } else if (subject) {
+      const subjectData = getSubject(subject);
+      filteredCourses = freeSubjectCourses[subject] || [];
+      
+      if (filteredCourses.length < 8) {
+        const subjectName = subjectData?.name || subject;
+        const additionalCount = 8 - filteredCourses.length;
+        
+        for (let i = 0; i < additionalCount; i++) {
+          const randomProvider = ['Coursera', 'edX', 'Khan Academy', 'Udacity', 'Udemy'][Math.floor(Math.random() * 5)];
+          const randomInstitution = ['Stanford University', 'MIT', 'Harvard University', 'University of Michigan', 'Yale University'][Math.floor(Math.random() * 5)];
+          const randomRating = (4 + Math.random()).toFixed(1);
+          const randomReviews = Math.floor(Math.random() * 10000) + 1000;
+          
+          filteredCourses.push({
+            id: `generated-${subject}-${i}`,
+            title: `${subjectName} - Advanced Course ${i + 1}`,
+            provider: randomProvider,
+            institution: randomInstitution,
+            link: getProviderWebsite(randomProvider) + "/course/" + subject.toLowerCase().replace(/\s+/g, '-'),
+            image: `/images/placeholder-course-${(i % 4) + 1}.jpg`,
+            rating: parseFloat(randomRating),
+            reviewCount: randomReviews,
+            category: subjectData?.category || "Computer Science",
+            isFree: true,
+            description: `An in-depth course on ${subjectName} covering advanced concepts and practical applications.`
+          });
+        }
+      }
+      
+      setTitle(`Free ${subjectData?.name || subject} Courses`);
+      setDescription(subjectData?.description || `Explore free courses in ${subject} from top educational providers.`);
+    } else {
+      filteredCourses = [...freePopularCourses, ...freeTopRatedCourses];
+      filteredCourses = filteredCourses.filter((course, index, self) =>
+        index === self.findIndex((c) => c.id === course.id)
+      );
+    }
+    
+    setCourses(filteredCourses);
+  }, [searchParams]);
+  
+  return (
+    <>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{title}</h1>
+          <p className="text-slate-600 dark:text-slate-300">{description}</p>
+        </div>
+        
+        <div>
+          {(searchParams.get('type') || searchParams.get('category') || searchParams.get('provider') || searchParams.get('subject')) && (
+            <Link 
+              href="/courses"
+              className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to all courses
+            </Link>
+          )}
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {courses.map(course => (
+          <CourseCard key={course.id} {...course} />
+        ))}
+      </div>
+      
+      {courses.length === 0 && (
+        <div className="text-center py-16">
+          <h3 className="text-xl font-semibold mb-2">No courses found</h3>
+          <p className="text-slate-600 dark:text-slate-300">Try adjusting your search criteria or browse all available courses.</p>
+        </div>
+      )}
+    </>
   );
 } 

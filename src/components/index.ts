@@ -8,13 +8,13 @@ export { Footer } from './layout/Footer';
 // Course components
 export { CourseCard } from './courses/CourseCard';
 
-// Home components - export specific components instead of wildcard
-export { default as ArticlesSection } from './home/ArticlesSection';
-export { default as StatsSection } from './home/StatsSection';
-export { default as FeaturedSection } from './home/FeaturedSection';
-export { default as Hero } from './home/Hero';
+// Home components - named exports (not default)
+export { ArticlesSection } from './home/ArticlesSection';
+export { StatsSection } from './home/StatsSection';
+export { FeaturedSection } from './home/FeaturedSection';
+export { Hero } from './home/Hero';
 
-// UI components - export individual components instead of wildcard
+// UI components - named exports
 export { Button } from './ui/button';
 export { Card, CardContent } from './ui/card';
 export { Badge } from './ui/badge';
