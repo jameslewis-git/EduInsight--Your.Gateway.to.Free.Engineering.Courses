@@ -133,3 +133,4 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
 HeroSection.displayName = "HeroSection"
 
 export { HeroSection } 
+ 

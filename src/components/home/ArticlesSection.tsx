@@ -128,10 +128,10 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
             )}
             
             <div className={`relative overflow-hidden ${featured ? "md:w-full h-72" : "h-48"}`}>
-              <Image
-                src={image}
-                alt={title}
-                fill
+            <Image
+              src={image}
+              alt={title}
+              fill
                 className="object-cover transition-all duration-700 ease-in-out"
                 style={{ 
                   objectFit: "cover",
@@ -146,9 +146,9 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                 <div className="relative group">
                   <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 border-0 text-white shadow-lg shadow-blue-900/20 group-hover:shadow-blue-600/40 transition-shadow duration-300">
                     <Sparkles className="w-3 h-3 mr-1 opacity-80" />
-                    {category}
-                  </Badge>
-                </div>
+              {category}
+            </Badge>
+          </div>
               </div>
               
               {/* Featured badge */}
@@ -157,14 +157,14 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                   <Badge variant="outline" className="bg-primary/80 backdrop-blur-sm text-white border-white/20">
                     Featured
                   </Badge>
-                </div>
+            </div>
               )}
               
               {/* Article metadata on image bottom */}
               <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
                 <h3 className="text-xl font-bold text-white drop-shadow-md mb-2">
-                  {title}
-                </h3>
+              {title}
+            </h3>
                 <div className="flex items-center gap-3 text-xs text-white/80">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
@@ -188,8 +188,8 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
             
             <CardContent className="flex-1 flex flex-col p-4 text-slate-800 dark:text-slate-200">
               <p className="text-sm mb-4 text-slate-600 dark:text-slate-300">
-                {excerpt}
-              </p>
+              {excerpt}
+            </p>
               
               <div className="mt-auto pt-2 border-t border-slate-200 dark:border-slate-800">
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -245,9 +245,9 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                   </DialogContent>
                 </Dialog>
               </div>
-            </CardContent>
-          </Card>
-        </Link>
+          </CardContent>
+        </Card>
+      </Link>
       </motion.div>
     </motion.div>
   );

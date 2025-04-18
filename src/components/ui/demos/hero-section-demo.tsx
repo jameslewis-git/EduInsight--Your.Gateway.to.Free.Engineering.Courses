@@ -3,7 +3,6 @@
 import { HeroSection } from "@/components/ui/hero-section"
 import { useEffect, useState, useRef } from "react"
 import { motion, useAnimation, useInView, AnimatePresence } from "framer-motion"
-import { SearchBar } from "@/components/ui/search"
 
 function HeroSectionDemo() {
   const [loaded, setLoaded] = useState(false);
@@ -263,20 +262,6 @@ function HeroSectionDemo() {
               >
                 Find the perfect courses from top providers to enhance your skills and accelerate your career. EduInsight aggregates courses from multiple platforms to help you find exactly what you need.
               </motion.p>
-              
-              {/* Modern Search Bar */}
-              <motion.div
-                className="mb-10 max-w-xl mx-auto lg:mx-0"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.25 }}
-              >
-                <SearchBar 
-                  floatingDesign={true} 
-                  suggestionsEnabled={true}
-                  animatedPlaceholder={true}
-                />
-              </motion.div>
               
               {/* CTA buttons */}
               <motion.div 

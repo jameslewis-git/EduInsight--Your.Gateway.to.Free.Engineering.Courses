@@ -3,16 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Search, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Menu } from "lucide-react";
+import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { HeaderSearch } from "./HeaderSearch";
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -68,55 +65,11 @@ export function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
-          <AnimatePresence>
-            {isSearchOpen ? (
-              <motion.div
-                className="absolute inset-0 h-16 bg-background flex items-center px-4 md:px-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex w-full items-center gap-2">
-                  <Input
-                    type="search"
-                    placeholder="Search 250,000 courses..."
-                    className="flex-1"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    autoFocus
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsSearchOpen(false)}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center gap-2"
-              >
-                <ThemeToggle />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="mr-1"
-                  aria-label="Search"
-                  onClick={() => setIsSearchOpen(true)}
-                >
-                  <Search className="h-5 w-5" />
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="flex items-center gap-3">
+          {/* Modern Search Component */}
+          <HeaderSearch />
+          
+          <ThemeToggle />
 
           <div className="hidden md:flex gap-2">
             <Button variant="ghost" size="sm" asChild>

@@ -344,3 +344,4 @@ export default function LearningPathPage({ params }: { params: { id: string } })
     </MainLayout>
   );
 } 
+ 
