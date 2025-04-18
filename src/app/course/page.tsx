@@ -1,6 +1,8 @@
-import { MainLayout } from "@/components/layout/MainLayout";
+"use client";
+
+import { MainLayout } from "@/components";
 import { motion } from "framer-motion";
-import { CourseCard } from "@/components/courses/CourseCard";
+import { CourseCard } from "@/components";
 
 // Sample courses data
 const popularCourses = [
