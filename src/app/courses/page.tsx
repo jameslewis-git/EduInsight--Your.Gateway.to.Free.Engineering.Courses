@@ -344,8 +344,7 @@ function CoursesContent() {
             image: `/images/placeholder-course-${(i % 4) + 1}.jpg`,
             rating: parseFloat(randomRating),
             reviewCount: randomReviews,
-            // @ts-ignore: Property 'category' may not exist on type 'Subject'
-            category: typeof subjectData === 'object' && subjectData !== null ? (subjectData.category || "Computer Science") : "Computer Science",
+            category: "Computer Science",
             isFree: true,
             description: `An in-depth course on ${subjectName} covering advanced concepts and practical applications.`
           });
