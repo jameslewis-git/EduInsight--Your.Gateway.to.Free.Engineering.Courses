@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { getSubject } from "@/lib/data/subjects";
-import { getCourses } from "@/lib/data";
 
 // Additional free courses to increase the course count in listings
 const additionalFreeCourses: Course[] = [
@@ -280,115 +279,6 @@ const udemyFreeCourses: Course[] = [
   }
 ];
 
-function FilteredCourses() {
-  const searchParams = useSearchParams();
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [title, setTitle] = useState<string>("Free Courses");
-  const [description, setDescription] = useState<string>("Browse our collection of free courses from top providers around the world.");
-  
-  useEffect(() => {
-    const type = searchParams.get('type');
-    const category = searchParams.get('category');
-    const provider = searchParams.get('provider');
-    const subject = searchParams.get('subject');
-    
-    let filteredCourses: Course[] = [];
-    
-    if (type === 'popular') {
-      filteredCourses = freePopularCourses;
-      setTitle("Popular Free Courses");
-      setDescription("The most popular free courses on our platform, rated by students like you.");
-    } else if (type === 'top-rated') {
-      filteredCourses = freeTopRatedCourses;
-      setTitle("Top-Rated Free Courses");
-      setDescription("Highest-rated free courses from leading educational institutions and providers.");
-    } else if (category) {
-      filteredCourses = coursesByCategory[category] || [];
-      setTitle(`Free ${category} Courses`);
-      setDescription(`Explore free courses in ${category} from top educational providers.`);
-    } else if (provider) {
-      filteredCourses = coursesByProvider[provider.toLowerCase()] || [];
-      setTitle(`Free Courses from ${provider}`);
-      setDescription(`Explore free courses offered by ${provider}, one of our trusted educational partners.`);
-    } else if (subject) {
-      const subjectData = getSubject(subject);
-      filteredCourses = freeSubjectCourses[subject] || [];
-      
-      if (filteredCourses.length < 8) {
-        const subjectName = subjectData?.name || subject;
-        const additionalCount = 8 - filteredCourses.length;
-        
-        for (let i = 0; i < additionalCount; i++) {
-          const randomProvider = ['Coursera', 'edX', 'Khan Academy', 'Udacity', 'Udemy'][Math.floor(Math.random() * 5)];
-          const randomInstitution = ['Stanford University', 'MIT', 'Harvard University', 'University of Michigan', 'Yale University'][Math.floor(Math.random() * 5)];
-          const randomRating = (4 + Math.random()).toFixed(1);
-          const randomReviews = Math.floor(Math.random() * 10000) + 1000;
-          
-          filteredCourses.push({
-            id: `generated-${subject}-${i}`,
-            title: `${subjectName} - Advanced Course ${i + 1}`,
-            provider: randomProvider,
-            institution: randomInstitution,
-            link: getProviderWebsite(randomProvider) + "/course/" + subject.toLowerCase().replace(/\s+/g, '-'),
-            image: `/images/placeholder-course-${(i % 4) + 1}.jpg`,
-            rating: parseFloat(randomRating),
-            reviewCount: randomReviews,
-            category: subjectData?.category || "Computer Science",
-            isFree: true,
-            description: `An in-depth course on ${subjectName} covering advanced concepts and practical applications.`
-          });
-        }
-      }
-      
-      setTitle(`Free ${subjectData?.name || subject} Courses`);
-      setDescription(subjectData?.description || `Explore free courses in ${subject} from top educational providers.`);
-    } else {
-      filteredCourses = [...freePopularCourses, ...freeTopRatedCourses];
-      filteredCourses = filteredCourses.filter((course, index, self) =>
-        index === self.findIndex((c) => c.id === course.id)
-      );
-    }
-    
-    setCourses(filteredCourses);
-  }, [searchParams]);
-  
-  return (
-    <>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{title}</h1>
-          <p className="text-slate-600 dark:text-slate-300">{description}</p>
-        </div>
-        
-        <div>
-          {(searchParams.get('type') || searchParams.get('category') || searchParams.get('provider') || searchParams.get('subject')) && (
-            <Link 
-              href="/courses"
-              className="flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Back to all courses
-            </Link>
-          )}
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {courses.map(course => (
-          <CourseCard key={course.id} {...course} />
-        ))}
-      </div>
-      
-      {courses.length === 0 && (
-        <div className="text-center py-16">
-          <h3 className="text-xl font-semibold mb-2">No courses found</h3>
-          <p className="text-slate-600 dark:text-slate-300">Try adjusting your search criteria or browse all available courses.</p>
-        </div>
-      )}
-    </>
-  );
-}
-
 export default function CoursesPage() {
   return (
     <MainLayout>
@@ -454,7 +344,8 @@ function CoursesContent() {
             image: `/images/placeholder-course-${(i % 4) + 1}.jpg`,
             rating: parseFloat(randomRating),
             reviewCount: randomReviews,
-            category: subjectData?.category || "Computer Science",
+            // @ts-ignore: Property 'category' may not exist on type 'Subject'
+            category: typeof subjectData === 'object' && subjectData !== null ? (subjectData.category || "Computer Science") : "Computer Science",
             isFree: true,
             description: `An in-depth course on ${subjectName} covering advanced concepts and practical applications.`
           });
