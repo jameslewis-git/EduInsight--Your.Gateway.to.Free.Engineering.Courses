@@ -131,7 +131,7 @@ const relatedCourses = [
   }
 ];
 
-export default function CoursesPage() {
+export default function CourseDetailPage() {
   return (
     <MainLayout>
       <div className="container py-16">
@@ -142,7 +142,7 @@ export default function CoursesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Courses
+            Course Details
           </motion.h1>
 
           <motion.p
