@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="80" height="80" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="css3-gradient" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" style="stop-color:#264DE4"/>
+      <stop offset="100%" style="stop-color:#2965F1"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#css3-gradient)" d="M255.555 0l-23.241 260.03-104.47 28.96-104.182-28.96L0.445 0h255.11z"/>
+  <path fill="#EBEBEB" d="M128 51.275H35.987l3.555 39.802h88.458v-39.802zm0 99.801H84.528l3.555 39.802h39.917v-39.802zM128 232.549v-41.112l-.248.066-38.508-10.191-2.462-27.531H60.073l4.849 54.134 62.874 17.219.204-.056z"/>
+  <path fill="#ffffff" d="M127.89 51.275v39.802h87.595l.748-8.385 1.785-31.417H127.89zm0 99.801v39.802h41.512l-3.89 43.519-37.622 10.141v41.112l62.918-17.219.462-5.195 7.208-80.865.749-8.391H127.89z"/>
+</svg> 

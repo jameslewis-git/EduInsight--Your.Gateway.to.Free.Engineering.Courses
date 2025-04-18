@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Elements -->
+  <circle cx="400" cy="300" r="250" fill="#F3F4F6" opacity="0.5"/>
+  <circle cx="400" cy="300" r="200" fill="#E5E7EB" opacity="0.3"/>
+  
+  <!-- Main Character -->
+  <g transform="translate(300, 150)">
+    <!-- Head -->
+    <circle cx="100" cy="100" r="50" fill="#4F46E5"/>
+    <circle cx="85" cy="90" r="5" fill="white"/>
+    <circle cx="115" cy="90" r="5" fill="white"/>
+    <path d="M90 110 Q100 120 110 110" stroke="white" stroke-width="3" fill="none"/>
+    
+    <!-- Body -->
+    <path d="M100 150 L100 250 M60 180 L140 180" stroke="#4F46E5" stroke-width="20" stroke-linecap="round"/>
+    
+    <!-- Arms -->
+    <path d="M60 180 L20 220 M140 180 L180 220" stroke="#4F46E5" stroke-width="15" stroke-linecap="round"/>
+    
+    <!-- Laptop -->
+    <rect x="60" y="220" width="80" height="60" rx="5" fill="#3730A3"/>
+    <rect x="60" y="220" width="80" height="5" fill="#6366F1"/>
+  </g>
+  
+  <!-- Floating Elements -->
+  <g>
+    <!-- Code Symbols -->
+    <text x="200" y="150" font-family="monospace" font-size="24" fill="#4F46E5">&lt;/&gt;</text>
+    <text x="550" y="200" font-family="monospace" font-size="24" fill="#4F46E5">{}</text>
+    <text x="500" y="400" font-family="monospace" font-size="24" fill="#4F46E5">()</text>
+    
+    <!-- Tech Icons -->
+    <circle cx="180" cy="300" r="20" fill="#00A3FF"/>
+    <text x="170" y="308" font-family="sans-serif" font-size="16" fill="white">AI</text>
+    
+    <circle cx="600" cy="250" r="25" fill="#FF6B00"/>
+    <text x="585" y="258" font-family="sans-serif" font-size="16" fill="white">DSA</text>
+    
+    <circle cx="500" cy="450" r="22" fill="#00C853"/>
+    <text x="490" y="458" font-family="sans-serif" font-size="16" fill="white">Py</text>
+  </g>
+  
+  <!-- Decorative Lines -->
+  <path d="M100 100 Q200 50 300 100" stroke="#E5E7EB" stroke-width="2" fill="none"/>
+  <path d="M500 500 Q600 450 700 500" stroke="#E5E7EB" stroke-width="2" fill="none"/>
+  
+  <!-- Grid Pattern -->
+  <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="none"/>
+    <circle cx="10" cy="10" r="1" fill="#E5E7EB"/>
+  </pattern>
+  <rect width="800" height="600" fill="url(#grid)" opacity="0.5"/>
+</svg> 
