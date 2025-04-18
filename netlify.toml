@@ -7,6 +7,30 @@
 
 [build.environment]
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  NEXT_USE_NETLIFY_EDGE = "true"
+  NODE_VERSION = "20"
+  NEXT_FORCE_EDGE_RUNTIME = "false"
+  # Skip rendering of problematic pages during build
+  SKIP_AUTH_CALLBACK_STATIC_GENERATION = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Force the /auth/callback page to be client-side rendered since it uses useSearchParams
+[[redirects]]
+  from = "/auth/callback"
+  to = "/auth/callback/index.html"
+  status = 200
+  force = true
+  
+[[redirects]]
+  from = "/signup-confirmation"
+  to = "/signup-confirmation/index.html"
+  status = 200
+  force = true
+  
+[[redirects]]
+  from = "/courses"
+  to = "/courses/index.html"
+  status = 200
+  force = true
