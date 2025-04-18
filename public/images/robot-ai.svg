@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
+  <!-- Robot head -->
+  <rect x="60" y="40" width="80" height="80" rx="10" fill="#4A55A2" stroke="#2D3250" stroke-width="2"/>
+  
+  <!-- Eyes -->
+  <circle cx="80" cy="65" r="10" fill="#7895CB"/>
+  <circle cx="120" cy="65" r="10" fill="#7895CB"/>
+  <circle cx="80" cy="65" r="5" fill="#A0BFE0"/>
+  <circle cx="120" cy="65" r="5" fill="#A0BFE0"/>
+  
+  <!-- Antenna -->
+  <line x1="100" y1="40" x2="100" y2="20" stroke="#2D3250" stroke-width="3"/>
+  <circle cx="100" cy="15" r="5" fill="#C5DFF8"/>
+  
+  <!-- Mouth/Speaker -->
+  <rect x="75" y="85" width="50" height="10" rx="5" fill="#2D3250"/>
+  <line x1="80" y1="90" x2="120" y2="90" stroke="#7895CB" stroke-width="2"/>
+  
+  <!-- Robot body -->
+  <rect x="70" y="120" width="60" height="60" rx="5" fill="#4A55A2" stroke="#2D3250" stroke-width="2"/>
+  
+  <!-- Control panel -->
+  <rect x="80" y="130" width="40" height="20" rx="2" fill="#2D3250"/>
+  <circle cx="90" cy="140" r="5" fill="#C5DFF8"/>
+  <circle cx="110" cy="140" r="5" fill="#7895CB"/>
+  
+  <!-- Arms -->
+  <rect x="50" y="130" width="20" height="5" rx="2" fill="#4A55A2" stroke="#2D3250" stroke-width="1"/>
+  <rect x="130" y="130" width="20" height="5" rx="2" fill="#4A55A2" stroke="#2D3250" stroke-width="1"/>
+  
+  <!-- Binary code background effect -->
+  <text x="20" y="30" fill="#2D3250" opacity="0.5" font-family="monospace" font-size="8">01001010</text>
+  <text x="130" y="180" fill="#2D3250" opacity="0.5" font-family="monospace" font-size="8">10110101</text>
+  <text x="160" y="40" fill="#2D3250" opacity="0.5" font-family="monospace" font-size="8">11001010</text>
+  <text x="40" y="190" fill="#2D3250" opacity="0.5" font-family="monospace" font-size="8">01010111</text>
+  
+  <!-- Connection lines -->
+  <path d="M40,60 Q20,80 40,100" stroke="#7895CB" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M160,60 Q180,80 160,100" stroke="#7895CB" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M40,140 Q20,160 40,180" stroke="#7895CB" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M160,140 Q180,160 160,180" stroke="#7895CB" stroke-width="1" fill="none" opacity="0.6"/>
+</svg> 

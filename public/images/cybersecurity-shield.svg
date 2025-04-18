@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
+  <!-- Shield base -->
+  <path d="M100,20 L160,40 C160,40 150,120 100,170 C50,120 40,40 40,40 Z" fill="#2A344A" stroke="#1A2234" stroke-width="3"/>
+  <path d="M100,30 L150,45 C150,45 140,115 100,155 C60,115 50,45 50,45 Z" fill="#3B4C6B" stroke="#1A2234" stroke-width="1"/>
+  
+  <!-- Lock body -->
+  <rect x="75" y="70" width="50" height="50" rx="5" fill="#5376AA" stroke="#1A2234" stroke-width="2"/>
+  
+  <!-- Lock shackle -->
+  <path d="M85,70 L85,50 C85,40 115,40 115,50 L115,70" stroke="#1A2234" stroke-width="4" fill="none"/>
+  
+  <!-- Keyhole -->
+  <circle cx="100" cy="85" r="10" fill="#1A2234"/>
+  <rect x="95" y="85" width="10" height="20" fill="#1A2234"/>
+  
+  <!-- Digital circuit pattern -->
+  <path d="M60,60 L80,60" stroke="#5376AA" stroke-width="1.5" opacity="0.6"/>
+  <path d="M60,70 L70,70" stroke="#5376AA" stroke-width="1.5" opacity="0.6"/>
+  <path d="M60,80 L70,80" stroke="#5376AA" stroke-width="1.5" opacity="0.6"/>
+  <path d="M130,60 L140,60" stroke="#5376AA" stroke-width="1.5" opacity="0.6"/>
+  <path d="M130,70 L140,70" stroke="#5376AA" stroke-width="1.5" opacity="0.6"/>
+  <path d="M130,80 L140,80" stroke="#5376AA" stroke-width="1.5" opacity="0.6"/>
+  
+  <circle cx="55" cy="60" r="2" fill="#00FFC3"/>
+  <circle cx="55" cy="70" r="2" fill="#00FFC3"/>
+  <circle cx="55" cy="80" r="2" fill="#00FFC3"/>
+  <circle cx="145" cy="60" r="2" fill="#00FFC3"/>
+  <circle cx="145" cy="70" r="2" fill="#00FFC3"/>
+  <circle cx="145" cy="80" r="2" fill="#00FFC3"/>
+  
+  <!-- Binary code -->
+  <text x="70" y="140" fill="#00FFC3" opacity="0.7" font-family="monospace" font-size="8">01</text>
+  <text x="90" y="140" fill="#00FFC3" opacity="0.7" font-family="monospace" font-size="8">10</text>
+  <text x="110" y="140" fill="#00FFC3" opacity="0.7" font-family="monospace" font-size="8">01</text>
+  <text x="130" y="140" fill="#00FFC3" opacity="0.7" font-family="monospace" font-size="8">10</text>
+  
+  <!-- Glow effect -->
+  <path d="M100,30 L150,45 C150,45 140,115 100,155 C60,115 50,45 50,45 Z" stroke="#00FFC3" stroke-width="1" opacity="0.5" fill="none"/>
+  
+  <!-- Shield highlight -->
+  <path d="M60,50 C80,60 120,60 140,50" stroke="white" stroke-width="1" opacity="0.3" fill="none"/>
+</svg> 

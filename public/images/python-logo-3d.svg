@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
+  <!-- Blue part top -->
+  <path d="M60,40 L100,30 L140,40 L140,80 C140,86 134,90 128,90 L72,90 C66,90 60,86 60,80 Z" fill="#366A96" stroke="#1A3F5A" stroke-width="2"/>
+  <path d="M60,40 L100,30 L140,40 L110,50 L70,45 Z" fill="#4F88B8" stroke="#1A3F5A" stroke-width="1"/>
+  
+  <!-- Yellow part bottom -->
+  <path d="M60,120 L100,130 L140,120 L140,80 C140,86 134,90 128,90 L72,90 C66,90 60,86 60,80 Z" fill="#FFD43B" stroke="#8C6A03" stroke-width="2"/>
+  <path d="M60,120 L100,130 L140,120 L110,115 L70,118 Z" fill="#FFDE76" stroke="#8C6A03" stroke-width="1"/>
+  
+  <!-- Circles -->
+  <circle cx="80" cy="60" r="10" fill="#FFD43B" stroke="#8C6A03" stroke-width="2"/>
+  <circle cx="120" cy="110" r="10" fill="#366A96" stroke="#1A3F5A" stroke-width="2"/>
+
+  <!-- Shadow effects -->
+  <ellipse cx="100" cy="150" rx="70" ry="10" fill="#000000" opacity="0.2"/>
+  
+  <!-- Highlights -->
+  <path d="M70,45 C90,50 110,50 130,45" stroke="white" stroke-width="2" opacity="0.5" fill="none"/>
+  <path d="M70,118 C90,115 110,115 130,118" stroke="white" stroke-width="2" opacity="0.3" fill="none"/>
+  
+  <!-- 3D effect lines -->
+  <path d="M65,70 L75,70" stroke="#1A3F5A" stroke-width="1" opacity="0.6"/>
+  <path d="M125,70 L135,70" stroke="#1A3F5A" stroke-width="1" opacity="0.6"/>
+  <path d="M65,100 L75,100" stroke="#8C6A03" stroke-width="1" opacity="0.6"/>
+  <path d="M125,100 L135,100" stroke="#8C6A03" stroke-width="1" opacity="0.6"/>
+</svg> 
