@@ -398,7 +398,4 @@ function CoursesContent() {
       )}
     </>
   );
-}
-
-// Add dynamic export to prevent static generation
-export const dynamic = 'force-dynamic'; 
+} 

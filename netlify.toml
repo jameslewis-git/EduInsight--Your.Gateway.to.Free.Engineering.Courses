@@ -2,7 +2,7 @@
   remote_images = ["https://source.unsplash.com/.*", "https://images.unsplash.com/.*", "https://ext.same-assets.com/.*", "https://ugc.same-assets.com/.*"]
 
 [build]
-  command = "bun run build"
+  command = "bun run netlify-build"
   publish = ".next"
 
 [build.environment]
@@ -10,13 +10,11 @@
   NEXT_USE_NETLIFY_EDGE = "true"
   NODE_VERSION = "20"
   NEXT_FORCE_EDGE_RUNTIME = "false"
-  # Skip rendering of problematic pages during build
-  SKIP_AUTH_CALLBACK_STATIC_GENERATION = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Force the /auth/callback page to be client-side rendered since it uses useSearchParams
+# Force dynamic routes to be client-side rendered
 [[redirects]]
   from = "/auth/callback"
   to = "/auth/callback/index.html"

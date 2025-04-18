@@ -86,7 +86,4 @@ export default function AuthCallbackPage() {
       </div>
     </MainLayout>
   );
-}
-
-// Add dynamic export to prevent static generation
-export const dynamic = 'force-dynamic'; 
+} 

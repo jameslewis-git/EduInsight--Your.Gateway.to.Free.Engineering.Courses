@@ -156,7 +156,4 @@ export default function SignupConfirmationPage() {
       </div>
     </MainLayout>
   );
-}
-
-// Add dynamic export to prevent static generation
-export const dynamic = 'force-dynamic'; 
+} 
