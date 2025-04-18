@@ -73,7 +73,7 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
   
   return (
     <motion.div
-      className={`${featured ? "md:col-span-2" : ""}`}
+      className={`${featured ? "md:col-span-2" : ""} h-full`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -98,12 +98,12 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
         }}
         className="relative w-full h-full perspective-1000"
       >
-        {/* Animated border */}
+        {/* Animated border - different gradients for light/dark mode */}
         <div 
           className="absolute inset-0 rounded-xl transition-opacity duration-300"
           style={{
             background: isHovering 
-              ? `radial-gradient(circle at ${glowPosition.x * 100}% ${glowPosition.y * 100}%, rgba(59, 130, 246, 0.5) 0%, rgba(147, 51, 234, 0.3) 25%, rgba(0, 0, 0, 0) 70%)` 
+              ? `radial-gradient(circle at ${glowPosition.x * 100}% ${glowPosition.y * 100}%, rgba(37, 99, 235, 0.3) 0%, rgba(147, 51, 234, 0.2) 25%, rgba(0, 0, 0, 0) 70%)` 
               : 'none',
             opacity: isHovering ? 1 : 0,
             zIndex: 0
@@ -111,15 +111,15 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
         />
         
         <Link href={`/report`} className="block h-full">
-          <Card className="overflow-hidden h-full flex flex-col hover:border-primary/50 transition-colors bg-slate-50 dark:bg-slate-900/80 backdrop-blur-sm relative">
+          <Card className="overflow-hidden h-full flex flex-col hover:border-primary/50 transition-colors bg-white shadow-md dark:bg-slate-900/90 backdrop-blur-sm relative border border-slate-200 dark:border-slate-800">
             {/* Animated shine effect */}
             {isHovering && (
               <div 
-                className="absolute inset-0 opacity-30 z-0 overflow-hidden"
+                className="absolute inset-0 opacity-20 dark:opacity-30 z-0 overflow-hidden"
                 style={{
                   background: `linear-gradient(105deg, 
                     transparent 20%, 
-                    rgba(255, 255, 255, 0.1) 25%, 
+                    rgba(255, 255, 255, 0.4) 25%, 
                     transparent 60%)`,
                   backgroundSize: "200% 100%",
                   animation: "shine 1.5s ease-in-out infinite"
@@ -128,10 +128,10 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
             )}
             
             <div className={`relative overflow-hidden ${featured ? "md:w-full h-72" : "h-48"}`}>
-            <Image
-              src={image}
-              alt={title}
-              fill
+              <Image
+                src={image}
+                alt={title}
+                fill
                 className="object-cover transition-all duration-700 ease-in-out"
                 style={{ 
                   objectFit: "cover",
@@ -146,9 +146,9 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                 <div className="relative group">
                   <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 border-0 text-white shadow-lg shadow-blue-900/20 group-hover:shadow-blue-600/40 transition-shadow duration-300">
                     <Sparkles className="w-3 h-3 mr-1 opacity-80" />
-              {category}
-            </Badge>
-          </div>
+                    {category}
+                  </Badge>
+                </div>
               </div>
               
               {/* Featured badge */}
@@ -157,14 +157,14 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                   <Badge variant="outline" className="bg-primary/80 backdrop-blur-sm text-white border-white/20">
                     Featured
                   </Badge>
-            </div>
+                </div>
               )}
               
               {/* Article metadata on image bottom */}
               <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
                 <h3 className="text-xl font-bold text-white drop-shadow-md mb-2">
-              {title}
-            </h3>
+                  {title}
+                </h3>
                 <div className="flex items-center gap-3 text-xs text-white/80">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
@@ -186,20 +186,20 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
               </div>
             </div>
             
-            <CardContent className="flex-1 flex flex-col p-4">
-              <p className="text-sm text-muted-foreground mb-4">
-              {excerpt}
-            </p>
+            <CardContent className="flex-1 flex flex-col p-4 text-slate-800 dark:text-slate-200">
+              <p className="text-sm mb-4 text-slate-600 dark:text-slate-300">
+                {excerpt}
+              </p>
               
               <div className="mt-auto pt-2 border-t border-slate-200 dark:border-slate-800">
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="ghost" className="w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-800 -ml-2 h-9 rounded-lg">
+                    <Button variant="ghost" className="w-full justify-between hover:bg-slate-100 dark:hover:bg-slate-800 -ml-2 h-9 rounded-lg text-slate-700 dark:text-slate-300">
                       <span className="text-sm font-medium">Read full article</span>
                       <ArrowRight className="w-4 h-4" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-3xl h-[80vh] overflow-auto">
+                  <DialogContent className="max-w-3xl h-[80vh] overflow-auto bg-white dark:bg-slate-900 dark:text-slate-200">
                     <DialogHeader>
                       <div className="flex justify-between items-center">
                         <Badge>{category}</Badge>
@@ -209,8 +209,8 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                           </Button>
                         </DialogClose>
                       </div>
-                      <DialogTitle className="text-2xl">{title}</DialogTitle>
-                      <DialogDescription className="flex items-center gap-4 text-sm">
+                      <DialogTitle className="text-2xl text-slate-900 dark:text-white">{title}</DialogTitle>
+                      <DialogDescription className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" /> {date}
                         </span>
@@ -245,9 +245,9 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
                   </DialogContent>
                 </Dialog>
               </div>
-          </CardContent>
-        </Card>
-      </Link>
+            </CardContent>
+          </Card>
+        </Link>
       </motion.div>
     </motion.div>
   );
@@ -256,18 +256,18 @@ function ArticleCard({ id, title, excerpt, image, category, date, slug, readTime
 export function ArticlesSection() {
   const [category, setCategory] = useState<string | null>(null);
   
-  // Updated articles data with fullContent
+  // Updated articles data with fullContent and dates for 2025
   const articles = [
     {
       id: "1",
-      title: "Harvard CS50: Is It Still Worth Taking in 2023?",
+      title: "Harvard CS50: Is It Still Worth Taking in 2025?",
       excerpt: "An in-depth review of Harvard's popular CS50 course and whether it's still relevant for aspiring programmers today.",
       fullContent: `
-        <h2>Harvard CS50: Is It Still Worth Taking in 2023?</h2>
+        <h2>Harvard CS50: Is It Still Worth Taking in 2025?</h2>
         
         <p>Harvard's CS50 has long been considered one of the gold standards in introductory computer science education. Created by Professor David Malan, this course has evolved significantly since its inception, continually updating its curriculum to reflect modern programming paradigms and technologies.</p>
         
-        <p>In 2023, CS50 remains remarkably relevant for several key reasons:</p>
+        <p>In 2025, CS50 remains remarkably relevant for several key reasons:</p>
         
         <h3>Modernized Curriculum</h3>
         <p>The course now covers Python, JavaScript, SQL, and web development alongside traditional C programming, providing a comprehensive foundation that aligns with industry demands.</p>
@@ -285,7 +285,7 @@ export function ArticlesSection() {
       `,
       image: "/images/articles/harvard-cs50.svg",
       category: "Computer Science",
-      date: "October 15, 2023",
+      date: "February 15, 2025",
       slug: "harvard-cs50-review",
       readTime: "8 min read",
       author: "Alex Johnson",
@@ -296,7 +296,7 @@ export function ArticlesSection() {
       title: "Top Animation Courses for Aspiring Digital Artists",
       excerpt: "Discover the best online courses and programs for learning 2D and 3D animation techniques from industry professionals.",
       fullContent: `
-        <h2>Top Animation Courses for Aspiring Digital Artists</h2>
+        <h2>Top Animation Courses for Aspiring Digital Artists in 2025</h2>
         
         <p>The digital animation industry continues to grow exponentially, with opportunities spanning film, gaming, advertising, and educational content. For aspiring animators, selecting the right learning path is crucial for developing industry-relevant skills.</p>
         
@@ -316,18 +316,17 @@ export function ArticlesSection() {
       `,
       image: "/images/articles/animation-courses.svg",
       category: "Design",
-      date: "September 28, 2023",
+      date: "January 28, 2025",
       slug: "top-animation-courses",
       readTime: "6 min read",
-      author: "Maya Richards",
-      featured: true
+      author: "Maya Richards"
     },
     {
       id: "3",
       title: "Quantum Computing: What Programmers Need to Know",
       excerpt: "An accessible introduction to quantum computing concepts for software developers interested in this emerging field.",
       fullContent: `
-        <h2>Quantum Computing: What Programmers Need to Know</h2>
+        <h2>Quantum Computing: What Programmers Need to Know in 2025</h2>
         
         <p>Quantum computing represents a paradigm shift in computational capability, promising to solve specific problems exponentially faster than classical computers. While still evolving, modern developers can benefit from understanding its core principles.</p>
         
@@ -347,18 +346,17 @@ export function ArticlesSection() {
       `,
       image: "/images/articles/quantum-computing.svg",
       category: "Quantum Computing",
-      date: "October 5, 2023",
+      date: "March 5, 2025",
       slug: "quantum-computing-primer",
       readTime: "10 min read",
-      author: "Dr. Samantha Chen",
-      featured: true
+      author: "Dr. Samantha Chen"
     },
     {
       id: "4",
       title: "AI-Powered Learning: The Future of Education Technology",
       excerpt: "How artificial intelligence is transforming educational experiences through personalization and automated assessment.",
       fullContent: `
-        <h2>AI-Powered Learning: The Future of Education Technology</h2>
+        <h2>AI-Powered Learning: The Future of Education Technology in 2025</h2>
         
         <p>Artificial intelligence is revolutionizing education by creating adaptive learning experiences that respond to individual student needs in real-time, fundamentally changing how knowledge is acquired and assessed.</p>
         
@@ -378,18 +376,17 @@ export function ArticlesSection() {
       `,
       image: "/images/articles/ai-learning.svg",
       category: "AI",
-      date: "September 20, 2023",
+      date: "April 20, 2025",
       slug: "ai-powered-learning",
       readTime: "7 min read",
-      author: "Thomas Garcia",
-      featured: true
+      author: "Thomas Garcia"
     },
     {
       id: "5",
-      title: "Are Programming Bootcamps Still Worth It in 2023?",
+      title: "Are Programming Bootcamps Still Worth It in 2025?",
       excerpt: "An analysis of the current job market for bootcamp graduates and whether these intensive programs deliver on their promises.",
       fullContent: `
-        <h2>Are Programming Bootcamps Still Worth It in 2023?</h2>
+        <h2>Are Programming Bootcamps Still Worth It in 2025?</h2>
         
         <p>As coding bootcamps have proliferated over the past decade, their value proposition has evolved with the changing tech landscape and job market dynamics.</p>
         
@@ -409,11 +406,10 @@ export function ArticlesSection() {
       `,
       image: "/images/articles/programming-bootcamp.svg",
       category: "Programming",
-      date: "October 10, 2023",
+      date: "March 10, 2025",
       slug: "programming-bootcamps-analysis",
       readTime: "9 min read",
-      author: "Jessica Kim",
-      featured: true
+      author: "Jessica Kim"
     }
   ];
 
@@ -421,12 +417,12 @@ export function ArticlesSection() {
   const filteredArticles = category ? articles.filter(article => article.category === category) : articles;
 
   return (
-    <section className="py-16 md:py-24 bg-black text-white">
+    <section className="py-16 md:py-24 bg-gradient-to-b from-slate-100 to-white dark:from-slate-950 dark:to-slate-900 text-slate-900 dark:text-white">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8">
           <div>
             <motion.h2
-              className="text-3xl md:text-4xl font-bold text-white"
+              className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -435,7 +431,7 @@ export function ArticlesSection() {
               Get the latest news and analysis
             </motion.h2>
             <motion.p
-              className="mt-2 text-slate-300"
+              className="mt-2 text-slate-600 dark:text-slate-300"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -451,7 +447,7 @@ export function ArticlesSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Link href="/report" className="text-blue-400 hover:underline mt-4 md:mt-0 inline-block">
+            <Link href="/report" className="text-blue-600 hover:underline mt-4 md:mt-0 inline-block dark:text-blue-400">
               Browse The Report →
             </Link>
           </motion.div>
@@ -475,10 +471,10 @@ export function ArticlesSection() {
                 onClick={() => setCategory(cat === "All" ? null : cat)}
                 className={`whitespace-nowrap ${
                   cat === "All" && category === null 
-                    ? "bg-blue-600 hover:bg-blue-700" 
+                    ? "bg-blue-600 hover:bg-blue-700 text-white" 
                     : category === cat 
-                    ? "bg-blue-600 hover:bg-blue-700" 
-                    : "bg-transparent border-slate-700 text-slate-200 hover:bg-slate-800"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                    : "bg-white/80 border-slate-300 text-slate-700 hover:bg-slate-100 dark:bg-transparent dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                 }`}
               >
                 {cat}
@@ -487,7 +483,7 @@ export function ArticlesSection() {
           ))}
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredArticles.map((article, index) => (
             <motion.div
               key={article.id}
@@ -510,7 +506,7 @@ export function ArticlesSection() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <Link href="/report">
-            <Button variant="outline" size="lg" className="gap-2 border-slate-600 text-slate-200 hover:bg-slate-800 hover:text-white">
+            <Button variant="outline" size="lg" className="gap-2 border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white">
               View all articles
               <ArrowRight className="w-4 h-4" />
             </Button>
