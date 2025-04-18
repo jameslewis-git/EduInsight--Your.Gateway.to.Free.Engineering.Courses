@@ -248,3 +248,17 @@
 .code-property {
   color: #8be9fd;
 }
+
+/* Article card effects */
+@keyframes shine {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}

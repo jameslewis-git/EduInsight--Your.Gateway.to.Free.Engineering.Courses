@@ -225,7 +225,7 @@ function HeroSectionDemo() {
       />
       
       {loaded && (
-        <div className="container mx-auto px-4 relative z-10 pt-20 md:pt-28">
+        <div className="container mx-auto px-4 relative z-10 pt-10 md:pt-16">
           {/* Hero content with 3D tech scene */}
           <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
             <div className="w-full lg:w-1/2 text-center lg:text-left">
