@@ -94,6 +94,43 @@ const popularCourses = [
   }
 ];
 
+// Related courses data (properly formatted)
+const relatedCourses = [
+  {
+    id: "r1",
+    title: "Learning How To Learn for Youth",
+    provider: "Coursera",
+    institution: "Arizona State University",
+    link: "https://www.coursera.org/learn/learning-how-to-learn-youth",
+    rating: 4.7,
+    reviewCount: 1254,
+    category: "Personal Development",
+    isFree: true
+  },
+  {
+    id: "r2",
+    title: "Mindshift: Break Through Obstacles to Learning",
+    provider: "Coursera",
+    institution: "McMaster University",
+    link: "https://www.coursera.org/learn/mindshift",
+    rating: 4.8,
+    reviewCount: 4567,
+    category: "Personal Development",
+    isFree: true
+  },
+  {
+    id: "r3",
+    title: "Learning to Learn: Powerful mental tools to help you master tough subjects",
+    provider: "edX",
+    institution: "UC San Diego",
+    link: "https://www.edx.org/course/learning-to-learn",
+    rating: 4.6,
+    reviewCount: 2345,
+    category: "Personal Development",
+    isFree: false
+  }
+];
+
 export default function CoursesPage() {
   return (
     <MainLayout>
@@ -127,39 +164,3 @@ export default function CoursesPage() {
     </MainLayout>
   );
 }
-
-relatedCourses: [
-  {
-    id: "2",
-    title: "Learning How To Learn for Youth",
-    provider: "Coursera",
-    institution: "Arizona State University",
-    link: "https://www.coursera.org/learn/learning-how-to-learn-youth",
-    rating: 4.7,
-    reviewCount: 1254,
-    category: "Personal Development",
-    isFree: true
-  },
-  {
-    id: "3",
-    title: "Mindshift: Break Through Obstacles to Learning",
-    provider: "Coursera",
-    institution: "McMaster University",
-    link: "https://www.coursera.org/learn/mindshift",
-    rating: 4.8,
-    reviewCount: 4567,
-    category: "Personal Development",
-    isFree: true
-  },
-  {
-    id: "4",
-    title: "Learning to Learn: Powerful mental tools to help you master tough subjects",
-    provider: "edX",
-    institution: "UC San Diego",
-    link: "https://www.edx.org/course/learning-to-learn",
-    rating: 4.6,
-    reviewCount: 2345,
-    category: "Personal Development",
-    isFree: false
-  }
-]
