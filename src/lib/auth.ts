@@ -121,22 +121,14 @@ export async function signInWithGoogle() {
     // First, clear any existing auth state to ensure a fresh start
     await supabase.auth.signOut();
     
-    // Get the current origin (will be Netlify URL in production or localhost in development)
-    const origin = window.location.origin;
-    const callbackUrl = `${origin}/auth/callback`;
+    // Important: Use the exact auth callback URL that's registered in Supabase
+    // This must match your Supabase redirect URL setting exactly
+    const callbackUrl = 'https://eduinsight-project.netlify.app/auth/callback';
     
     console.log('Starting Google sign-in flow...');
     console.log('Using redirect URL:', callbackUrl);
     
-    // Clear any OAuth error parameters from URL
-    if (window.location.search.includes('error=')) {
-      console.log('Detected OAuth error in URL, cleaning up...');
-      
-      // Use history API to remove error parameters from URL without a refresh
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    
-    // Clear browser storage to prevent stale PKCE or state conflicts
+    // Clear browser storage to prevent stale tokens
     try {
       // Clear all auth-related items from localStorage
       const storageKeys = Object.keys(localStorage);
@@ -146,29 +138,11 @@ export async function signInWithGoogle() {
       
       console.log(`Clearing ${authKeys.length} auth-related items from storage`);
       authKeys.forEach(key => localStorage.removeItem(key));
-      
-      // Also clear session storage items
-      const sessionKeys = Object.keys(sessionStorage || {});
-      const sessionAuthKeys = sessionKeys.filter(key => 
-        key.startsWith('supabase') || key.includes('oauth')
-      );
-      
-      sessionAuthKeys.forEach(key => sessionStorage.removeItem(key));
     } catch (e) {
       console.log('Unable to fully clear storage, continuing anyway:', e);
     }
     
-    // Generate a strong, cryptographically secure random state
-    // This is more secure than Math.random()
-    const generateSecureState = () => {
-      const array = new Uint8Array(16);
-      crypto.getRandomValues(array);
-      return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
-    };
-    
-    const secureState = generateSecureState();
-    
-    // Proceed with OAuth flow
+    // Proceed with OAuth flow using implicit flow
     console.log('Initiating OAuth flow with Google...');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -177,8 +151,6 @@ export async function signInWithGoogle() {
         skipBrowserRedirect: false,
         queryParams: {
           prompt: 'select_account', // Always show Google account selector
-          access_type: 'offline', // Request refresh token
-          state: secureState,
         }
       },
     });

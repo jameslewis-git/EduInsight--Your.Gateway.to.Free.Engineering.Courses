@@ -6,33 +6,18 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 // Check if we're running on the client
 const isClient = typeof window !== 'undefined';
 
-// Create a storage provider that falls back gracefully
-const getStorageProvider = () => {
-  if (!isClient) return undefined;
-  
-  // Use a try-catch to handle potential localStorage access errors
-  try {
-    // Test localStorage access
-    localStorage.setItem('supabase.test', 'test');
-    localStorage.removeItem('supabase.test');
-    return localStorage;
-  } catch (e) {
-    console.warn('localStorage not available, falling back to memory storage');
-    // Fall back to in-memory storage
-    return undefined;
-  }
-};
-
+// Create the Supabase client with the correct configuration for authentication
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    // Use PKCE flow for enhanced security
-    flowType: 'pkce',
-    // Don't log auth details in production
+    // Important: Don't use PKCE flow to avoid cookies being required
+    // This fixes issues with third-party cookie blocking in browsers
+    flowType: 'implicit',
+    storage: isClient ? localStorage : undefined,
+    // Enable debug mode in development only
     debug: process.env.NODE_ENV === 'development',
-    storage: getStorageProvider(),
   },
   // Global settings for Supabase client
   global: {

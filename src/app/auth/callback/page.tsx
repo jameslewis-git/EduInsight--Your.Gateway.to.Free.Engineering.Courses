@@ -39,16 +39,6 @@ function CallbackHandler() {
           try {
             localStorage.clear(); // Clear all localStorage
             sessionStorage.clear(); // Clear all sessionStorage
-            
-            // Clear cookies related to auth by setting expiry in the past
-            document.cookie.split(';').forEach(c => {
-              const cookie = c.trim();
-              const eqPos = cookie.indexOf('=');
-              const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-              if (name.includes('auth') || name.includes('supabase')) {
-                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-              }
-            });
           } catch (e) {
             console.error("Error clearing storage:", e);
           }
@@ -72,104 +62,31 @@ function CallbackHandler() {
           return;
         }
         
-        const code = searchParams.get('code');
+        // For implicit flow, Supabase should automatically handle the session
+        // So we just need to check if auth worked and get the user
+        console.log("Checking if authentication was successful...");
+        setStatus("Verifying authentication...");
         
-        // If code is missing but we're within retry attempts, try again
-        if (!code) {
-          if (retryCount < maxRetries) {
-            console.log(`No code parameter found, retrying (${retryCount + 1}/${maxRetries})...`);
-            setStatus(`Waiting for authentication data... (Attempt ${retryCount + 1}/${maxRetries})`);
-            
-            // Wait and retry with increasing delay
-            setTimeout(() => {
-              setRetryCount(prev => prev + 1);
-            }, 1000 * (retryCount + 1)); // Increase delay with each retry
-            return;
-          } else {
-            console.error("No code parameter found in URL after retries");
-            
-            // Before giving up, check if we're already authenticated
-            const { data: userData } = await supabase.auth.getUser();
-            
-            if (userData.user) {
-              console.log("User is already authenticated, redirecting to dashboard...");
-              setStatus("Already authenticated! Redirecting...");
-              setTimeout(() => {
-                router.push('/dashboard');
-              }, 1000);
-              return;
-            }
-            
-            setError("Authentication code missing. Please try again or clear your browser cache.");
-            // Also redirect back to login after displaying error
-            setTimeout(() => {
-              router.push('/login?error=code_missing');
-            }, 3000);
-            return;
-          }
-        }
+        // Give Supabase a moment to process the auth callback
+        // This helps avoid race conditions
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        console.log("Auth code found, exchanging for session...");
-        setStatus("Exchanging authentication code for session...");
+        // Verify the session was created successfully by getting the user
+        const { data, error: userError } = await supabase.auth.getUser();
         
-        // Exchange the code for a session
-        try {
-          const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+        if (userError) {
+          console.error("Error getting user:", userError);
+          setError("Could not verify authentication. Please try again.");
           
-          if (sessionError) {
-            // Handle specific error for missing code verifier
-            if (sessionError.message.includes('code verifier should be non-empty') && retryCount < maxRetries) {
-              console.log(`Code verifier issue detected, retrying (${retryCount + 1}/${maxRetries})...`);
-              setStatus(`Authentication in progress... (Attempt ${retryCount + 1}/${maxRetries})`);
-              
-              // Add a short delay before retrying with increasing duration
-              setTimeout(() => {
-                setRetryCount(prev => prev + 1);
-              }, 1000 * (retryCount + 1)); // Increase delay with each retry
-              return;
-            }
-            
-            console.error("Error exchanging code for session:", sessionError);
-            setError(sessionError.message);
-            
-            // Also redirect back to login after displaying error
-            setTimeout(() => {
-              router.push(`/login?error=exchange_failed&message=${encodeURIComponent(sessionError.message)}`);
-            }, 3000);
-            return;
-          }
-        } catch (exchangeError) {
-          console.error("Exception during code exchange:", exchangeError);
-          
-          // For certain errors, we want to check if the user is already logged in
-          // This can happen if the code was already used
-          const { data: userCheck } = await supabase.auth.getUser();
-          if (userCheck.user) {
-            console.log("User appears to be authenticated despite exchange error");
-            setStatus("Authentication verified. Redirecting...");
-            setTimeout(() => {
-              router.push('/dashboard');
-            }, 1000);
-            return;
-          }
-          
-          setError("Failed to complete authentication. Please try logging in again.");
-          // Also redirect back to login after displaying error
           setTimeout(() => {
-            router.push('/login?error=exchange_exception');
+            router.push('/login?error=verification_failed');
           }, 3000);
           return;
         }
         
-        console.log("Session established successfully, checking auth state...");
-        setStatus("Verifying authentication...");
-        
-        // Verify the session was created successfully by getting the user
-        const { data } = await supabase.auth.getUser();
-        
         if (!data.user) {
-          console.error("Session created but no user found");
-          setError("Authentication completed but user data couldn't be retrieved.");
+          console.error("No user found after auth callback");
+          setError("Authentication failed. Please try signing in again.");
           
           // Also redirect back to login after displaying error
           setTimeout(() => {
@@ -198,7 +115,7 @@ function CallbackHandler() {
     };
 
     handleCallback();
-  }, [router, searchParams, retryCount, maxRetries]); // Added maxRetries to dependencies
+  }, [router, searchParams, retryCount, maxRetries]);
 
   return (
     <div className="text-center">

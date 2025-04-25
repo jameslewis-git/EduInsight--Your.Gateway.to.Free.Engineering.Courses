@@ -50,6 +50,8 @@ function ErrorHandler() {
       setErrorMessage('Authentication was processed but user data not found. Please try signing in again.');
     } else if (errorParam === 'callback_error') {
       setErrorMessage('Authentication callback failed. Please try again later.');
+    } else if (errorParam === 'verification_failed') {
+      setErrorMessage('Could not verify your authentication. Please try signing in again or using a different browser.');
     } else if (errorParam) {
       // Handle any other error in the URL
       setErrorMessage(errorDescription || errorMessage || `Authentication error: ${errorParam}`);
