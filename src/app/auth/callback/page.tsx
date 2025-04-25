@@ -12,19 +12,55 @@ function CallbackHandler() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("Initializing authentication...");
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
         setStatus("Processing authentication callback...");
         console.log("Auth callback initiated. Current URL:", window.location.href);
+        console.log("Search params:", Object.fromEntries([...searchParams.entries()]));
         
         const code = searchParams.get('code');
+        const errorParam = searchParams.get('error');
+        const errorDescription = searchParams.get('error_description');
         
-        if (!code) {
-          console.error("No code parameter found in URL");
-          setError("Authentication code missing. Please try again.");
+        // Handle explicit errors from the provider
+        if (errorParam) {
+          console.error("Auth error from provider:", errorParam, errorDescription);
+          setError(`Error from authentication provider: ${errorDescription || errorParam}`);
           return;
+        }
+        
+        // If code is missing but we're within retry attempts, try again
+        if (!code) {
+          if (retryCount < 3) {
+            console.log(`No code parameter found, retrying (${retryCount + 1}/3)...`);
+            setStatus(`Waiting for authentication data... (Attempt ${retryCount + 1}/3)`);
+            
+            // Wait and retry
+            setTimeout(() => {
+              setRetryCount(prev => prev + 1);
+            }, 1000);
+            return;
+          } else {
+            console.error("No code parameter found in URL after retries");
+            
+            // Before giving up, check if we're already authenticated
+            const { data: userData } = await supabase.auth.getUser();
+            
+            if (userData.user) {
+              console.log("User is already authenticated, redirecting to dashboard...");
+              setStatus("Already authenticated! Redirecting...");
+              setTimeout(() => {
+                router.push('/dashboard');
+              }, 1000);
+              return;
+            }
+            
+            setError("Authentication code missing. Please try again or clear your browser cache.");
+            return;
+          }
         }
         
         console.log("Auth code found, exchanging for session...");
@@ -66,7 +102,7 @@ function CallbackHandler() {
     };
 
     handleCallback();
-  }, [router, searchParams]);
+  }, [router, searchParams, retryCount]); // Added retryCount to dependencies
 
   return (
     <div className="text-center">

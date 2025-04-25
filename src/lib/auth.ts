@@ -75,22 +75,39 @@ export async function signInWithGoogle() {
     const origin = window.location.origin;
     const callbackUrl = `${origin}/auth/callback`;
     
+    console.log('Starting Google sign-in flow...');
     console.log('Using redirect URL:', callbackUrl);
     
+    // Check if already logged in
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user) {
+      console.log('User is already logged in, redirecting to dashboard...');
+      return { user: userData.user, error: null };
+    }
+    
+    // Proceed with OAuth flow
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: callbackUrl,
+        queryParams: {
+          // Add state parameter to help debug
+          state: JSON.stringify({ timestamp: Date.now(), origin: origin }),
+        }
       },
     });
 
     if (error) {
+      console.error('Error initiating Google sign-in:', error);
       return { user: null, error: { message: error.message } };
     }
 
+    console.log('OAuth sign-in initiated successfully, now redirecting to provider...');
+    
     // The OAuth flow will redirect the user, so we won't have a user object here
     return { error: null };
   } catch (error) {
+    console.error('Unexpected error during Google sign-in:', error);
     return {
       user: null,
       error: { message: 'An unexpected error occurred during Google sign in.' },
