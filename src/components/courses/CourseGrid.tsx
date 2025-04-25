@@ -2,9 +2,12 @@
 
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
+import { CourseCard } from "./CourseCard";
+import { Course } from "@/lib/types";
 
 interface CourseGridProps {
-  children: ReactNode;
+  children?: ReactNode;
+  courses?: Course[];
   title?: string;
   description?: string;
   viewAllLink?: string;
@@ -30,6 +33,7 @@ const item = {
 
 export function CourseGrid({
   children,
+  courses,
   title,
   description,
   viewAllLink,
@@ -94,10 +98,17 @@ export function CourseGrid({
         whileInView="show"
         viewport={{ once: true }}
       >
-        {Array.isArray(children) ? (
+        {courses ? (
+          // Render courses using the courses prop
+          courses.map((course) => (
+            <motion.div key={course.id} variants={item}>
+              <CourseCard {...course} />
+            </motion.div>
+          ))
+        ) : Array.isArray(children) ? (
+          // Render using children prop if no courses provided
           children.map((child, index) => {
             // Try to extract a key from the child if it's a valid React element
-            // This approach assumes CourseCard has an 'id' prop that can be used as a key
             const childKey =
               child &&
               typeof child === 'object' &&

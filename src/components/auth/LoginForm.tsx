@@ -24,29 +24,34 @@ function ErrorHandler() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   useEffect(() => {
+    // Check for URL error parameters first
     const errorParam = searchParams.get('error');
+    const errorCode = searchParams.get('error_code');
+    const errorDescription = searchParams.get('error_description');
     
-    if (errorParam === 'session_expired') {
-      setErrorMessage('Your authentication session expired. Please sign in again.');
+    // Handle specific error codes
+    if (errorCode === 'bad_oauth_state') {
+      setErrorMessage('Your authentication session has expired or was invalid. Please try signing in again.');
       
-      // Clear the URL parameter without refreshing the page
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('error');
-        window.history.replaceState({}, document.title, url.toString());
-      }
+      // Clear any existing sessions to prevent cascading auth errors
+      supabase.auth.signOut().then(() => {
+        console.log('Cleared existing sessions due to bad OAuth state');
+      });
+    } else if (errorParam === 'session_expired') {
+      setErrorMessage('Your authentication session expired. Please sign in again.');
+    } else if (errorParam) {
+      // Handle any other error in the URL
+      setErrorMessage(errorDescription || `Authentication error: ${errorParam}`);
     }
     
-    // Check if there are any OAuth errors in the URL
+    // Clean up the URL if it contains error parameters
     if (window.location.search.includes('error=')) {
-      // Clear any existing sessions that might cause state mismatch
-      supabase.auth.signOut().then(() => {
-        console.log('Cleared any existing sessions due to OAuth error');
-      });
-      
-      // Clean the URL
+      // Use history API to remove error parameters from URL without a refresh
       if (typeof window !== 'undefined') {
-        window.history.replaceState({}, document.title, window.location.pathname);
+        const url = new URL(window.location.href);
+        url.search = ''; // Remove all search parameters
+        window.history.replaceState({}, document.title, url.toString());
+        console.log('Cleaned URL of error parameters');
       }
     }
   }, [searchParams]);

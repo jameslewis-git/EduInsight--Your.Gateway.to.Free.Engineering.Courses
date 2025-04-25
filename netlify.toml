@@ -32,3 +32,17 @@
   to = "/courses/index.html"
   status = 200
   force = true
+
+# Add redirects to handle OAuth errors at the root path
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+  query = {error = ":error", error_code = ":error_code"}
+  force = true
+
+[[redirects]]
+  from = "/login"
+  to = "/login/index.html" 
+  status = 200
+  force = true

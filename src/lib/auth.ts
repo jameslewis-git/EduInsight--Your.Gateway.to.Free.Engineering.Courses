@@ -71,6 +71,9 @@ export async function signIn(email: string, password: string) {
 // Sign in with Google
 export async function signInWithGoogle() {
   try {
+    // First, clear any existing auth state to ensure a fresh start
+    await supabase.auth.signOut();
+    
     // Get the current origin (will be Netlify URL in production or localhost in development)
     const origin = window.location.origin;
     const callbackUrl = `${origin}/auth/callback`;
@@ -78,38 +81,45 @@ export async function signInWithGoogle() {
     console.log('Starting Google sign-in flow...');
     console.log('Using redirect URL:', callbackUrl);
     
-    // Clear browser URL if it contains OAuth error parameters
+    // Clear any OAuth error parameters from URL
     if (window.location.search.includes('error=')) {
       console.log('Detected OAuth error in URL, cleaning up...');
       
       // Use history API to remove error parameters from URL without a refresh
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-      
-      // Clear any incomplete sessions that might cause state mismatch
-      await supabase.auth.signOut();
-      console.log('Cleared any existing sessions to avoid state conflicts');
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
     
-    // Check if already logged in
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData.user) {
-      console.log('User is already logged in, redirecting to dashboard...');
-      return { user: userData.user, error: null };
-    }
-    
-    // Check for any stored pkce in localStorage and clear it to prevent conflicts
+    // Clear browser storage to prevent stale PKCE or state conflicts
     try {
-      if (localStorage.getItem('supabase.auth.token')) {
-        console.log('Clearing existing PKCE data from local storage');
-        localStorage.removeItem('supabase.auth.token');
-      }
+      // Clear all auth-related items from localStorage
+      const storageKeys = Object.keys(localStorage);
+      const authKeys = storageKeys.filter(key => 
+        key.startsWith('supabase.auth.') || key.includes('oauth')
+      );
+      
+      console.log(`Clearing ${authKeys.length} auth-related items from storage`);
+      authKeys.forEach(key => localStorage.removeItem(key));
+      
+      // Also clear session storage items
+      const sessionKeys = Object.keys(sessionStorage || {});
+      const sessionAuthKeys = sessionKeys.filter(key => 
+        key.startsWith('supabase') || key.includes('oauth')
+      );
+      
+      sessionAuthKeys.forEach(key => sessionStorage.removeItem(key));
     } catch (e) {
-      console.log('Unable to access localStorage, continuing without clearing');
+      console.log('Unable to fully clear storage, continuing anyway:', e);
     }
     
-    // Generate random state to enhance security
-    const randomState = Math.random().toString(36).substring(2, 15);
+    // Generate a strong, cryptographically secure random state
+    // This is more secure than Math.random()
+    const generateSecureState = () => {
+      const array = new Uint8Array(16);
+      crypto.getRandomValues(array);
+      return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+    
+    const secureState = generateSecureState();
     
     // Proceed with OAuth flow
     console.log('Initiating OAuth flow with Google...');
@@ -117,12 +127,11 @@ export async function signInWithGoogle() {
       provider: 'google',
       options: {
         redirectTo: callbackUrl,
-        skipBrowserRedirect: false, // Force the standard redirect flow
+        skipBrowserRedirect: false,
         queryParams: {
-          // Include parameters to improve the OAuth flow
           prompt: 'select_account', // Always show Google account selector
           access_type: 'offline', // Request refresh token
-          state: randomState, // Add state for security
+          state: secureState,
         }
       },
     });
@@ -133,8 +142,6 @@ export async function signInWithGoogle() {
     }
 
     console.log('OAuth sign-in initiated successfully, now redirecting to provider...');
-    
-    // The OAuth flow will redirect the user, so we won't have a user object here
     return { error: null };
   } catch (error) {
     console.error('Unexpected error during Google sign-in:', error);

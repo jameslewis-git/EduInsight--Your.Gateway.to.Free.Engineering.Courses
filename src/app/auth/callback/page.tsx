@@ -34,10 +34,28 @@ function CallbackHandler() {
           // Clear any existing session data
           await supabase.auth.signOut();
           
+          // Clear browser storage more thoroughly
+          try {
+            localStorage.clear(); // Clear all localStorage
+            sessionStorage.clear(); // Clear all sessionStorage
+            
+            // Clear cookies related to auth by setting expiry in the past
+            document.cookie.split(';').forEach(c => {
+              const cookie = c.trim();
+              const eqPos = cookie.indexOf('=');
+              const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+              if (name.includes('auth') || name.includes('supabase')) {
+                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+              }
+            });
+          } catch (e) {
+            console.error("Error clearing storage:", e);
+          }
+          
           // Redirect back to login after a brief delay
           setTimeout(() => {
             router.push('/login?error=session_expired');
-          }, 2000);
+          }, 1500);
           return;
         }
         
