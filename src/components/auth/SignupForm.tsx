@@ -21,6 +21,7 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -41,20 +42,34 @@ export function SignupForm() {
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
-    const { user, error } = await signUp(data.email, data.password, data.name);
+    try {
+      console.log('Submitting signup form for:', data.email);
+      const { user, error } = await signUp(data.email, data.password, data.name);
 
-    if (error) {
-      setError(error.message);
-      setIsLoading(false);
-      return;
-    }
+      if (error) {
+        console.error('Signup error:', error.message);
+        setError(error.message);
+        setIsLoading(false);
+        return;
+      }
 
-    if (user) {
-      // Redirect to dashboard since we're no longer using email verification
-      router.push("/dashboard");
-      router.refresh();
-    } else {
+      if (user) {
+        console.log('Signup successful, redirecting to dashboard');
+        // Show success message before redirecting
+        setSuccess("Account created successfully! Redirecting to dashboard...");
+        // Small delay to show success message
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
+      } else {
+        setError("Account creation failed. Please try again later.");
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error('Exception during signup:', err);
+      setError("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }
   };
@@ -83,8 +98,26 @@ export function SignupForm() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
               {error && (
-                <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
-                  {error}
+                <div className="p-4 bg-destructive/15 border border-destructive/30 text-destructive text-sm rounded-md flex items-start">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-medium mb-1">Signup error</p>
+                    <p>{error}</p>
+                  </div>
+                </div>
+              )}
+              
+              {success && (
+                <div className="p-4 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md flex items-start">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="font-medium mb-1">Success</p>
+                    <p>{success}</p>
+                  </div>
                 </div>
               )}
 

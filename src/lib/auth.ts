@@ -7,11 +7,12 @@ export type AuthError = {
 // Sign up with email and password
 export async function signUp(email: string, password: string, name: string) {
   try {
+    console.log('Starting signup process for:', email);
+    
     // Clear any existing sessions first
     await supabase.auth.signOut();
     
-    console.log('Starting signup process for:', email);
-    
+    // First, attempt to create the user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -20,8 +21,8 @@ export async function signUp(email: string, password: string, name: string) {
         data: {
           full_name: name
         },
-        // Redirect after email verification (if needed)
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // We're not using email confirmation for the demo
+        emailRedirectTo: undefined,
       }
     });
 
@@ -29,34 +30,37 @@ export async function signUp(email: string, password: string, name: string) {
       console.error('Signup error:', error);
       return { user: null, error: { message: error.message } };
     }
+    
+    console.log('Signup response:', data);
+    
+    // Check if the user was actually created
+    if (!data.user) {
+      return { 
+        user: null, 
+        error: { message: 'Failed to create user account. Please try again.' } 
+      };
+    }
+    
+    // On successful signup, immediately try to sign in
+    console.log('User created successfully, attempting to sign in');
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    // If the user was created successfully but needs email verification
-    if (data.user && data.user.identities && data.user.identities.length === 0) {
-      return {
-        user: data.user,
-        error: { 
-          message: 'Your account requires email verification. Please check your email for the verification link.' 
-        }
+    if (signInError) {
+      console.error('Auto sign-in error after signup:', signInError);
+      // Even though sign-in failed, the account was created successfully
+      return { 
+        user: data.user, 
+        error: { message: 'Account created but sign-in failed. Please try logging in manually.' } 
       };
     }
 
-    // If the user was created successfully, immediately sign them in
-    if (data.user) {
-      console.log('User created successfully, attempting sign in');
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        console.error('Auto sign-in error after signup:', signInError);
-        return { user: data.user, error: { message: 'Account created. Please sign in manually.' } };
-      }
-
-      return { user: signInData.user, error: null };
-    }
-
-    return { user: data.user, error: null };
+    // Success case - user created and signed in
+    console.log('User signed in successfully after signup');
+    return { user: signInData.user, error: null };
+    
   } catch (error) {
     console.error('Unexpected error during signup:', error);
     return {
