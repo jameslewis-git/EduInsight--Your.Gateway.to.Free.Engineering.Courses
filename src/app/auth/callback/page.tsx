@@ -21,16 +21,34 @@ function CallbackHandler() {
         console.log("Auth callback initiated. Current URL:", window.location.href);
         console.log("Search params:", Object.fromEntries([...searchParams.entries()]));
         
-        const code = searchParams.get('code');
+        // Check for OAuth state errors in the URL
         const errorParam = searchParams.get('error');
+        const errorCode = searchParams.get('error_code');
         const errorDescription = searchParams.get('error_description');
         
-        // Handle explicit errors from the provider
+        // Special handling for state errors - redirect to login
+        if (errorCode === 'bad_oauth_state') {
+          console.error("OAuth state validation failed:", errorDescription);
+          setStatus("Authentication session expired. Redirecting to login...");
+          
+          // Clear any existing session data
+          await supabase.auth.signOut();
+          
+          // Redirect back to login after a brief delay
+          setTimeout(() => {
+            router.push('/login?error=session_expired');
+          }, 2000);
+          return;
+        }
+        
+        // Handle other explicit errors from the provider
         if (errorParam) {
           console.error("Auth error from provider:", errorParam, errorDescription);
           setError(`Error from authentication provider: ${errorDescription || errorParam}`);
           return;
         }
+        
+        const code = searchParams.get('code');
         
         // If code is missing but we're within retry attempts, try again
         if (!code) {

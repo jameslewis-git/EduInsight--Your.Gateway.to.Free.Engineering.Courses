@@ -78,6 +78,19 @@ export async function signInWithGoogle() {
     console.log('Starting Google sign-in flow...');
     console.log('Using redirect URL:', callbackUrl);
     
+    // Clear browser URL if it contains OAuth error parameters
+    if (window.location.search.includes('error=')) {
+      console.log('Detected OAuth error in URL, cleaning up...');
+      
+      // Use history API to remove error parameters from URL without a refresh
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      
+      // Clear any incomplete sessions that might cause state mismatch
+      await supabase.auth.signOut();
+      console.log('Cleared any existing sessions to avoid state conflicts');
+    }
+    
     // Check if already logged in
     const { data: userData } = await supabase.auth.getUser();
     if (userData.user) {
@@ -86,13 +99,15 @@ export async function signInWithGoogle() {
     }
     
     // Proceed with OAuth flow
+    console.log('Initiating OAuth flow with Google...');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: callbackUrl,
+        skipBrowserRedirect: false, // Force the standard redirect flow
         queryParams: {
-          // Add state parameter to help debug
-          state: JSON.stringify({ timestamp: Date.now(), origin: origin }),
+          // Keep state parameter simple to avoid encoding issues
+          prompt: 'select_account', // Always show Google account selector
         }
       },
     });

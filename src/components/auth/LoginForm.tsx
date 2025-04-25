@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 
 import { LoginFormValues, loginSchema } from "@/lib/validations/auth";
 import { signIn, signInWithGoogle } from "@/lib/auth";
@@ -15,13 +15,45 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabase";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Check for error parameters in URL
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    
+    if (errorParam === 'session_expired') {
+      setError('Your authentication session expired. Please sign in again.');
+      
+      // Clear the URL parameter without refreshing the page
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('error');
+        window.history.replaceState({}, document.title, url.toString());
+      }
+    }
+    
+    // Check if there are any OAuth errors in the URL
+    if (window.location.search.includes('error=')) {
+      // Clear any existing sessions that might cause state mismatch
+      supabase.auth.signOut().then(() => {
+        console.log('Cleared any existing sessions due to OAuth error');
+      });
+      
+      // Clean the URL
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -59,13 +91,19 @@ export function LoginForm() {
     setIsGoogleLoading(true);
     setError(null);
 
-    const { error } = await signInWithGoogle();
+    try {
+      const { error } = await signInWithGoogle();
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setIsGoogleLoading(false);
+      }
+      // The redirect will be handled by the OAuth flow
+    } catch (e) {
+      console.error('Error during Google sign-in:', e);
+      setError('Failed to start Google sign-in. Please try again.');
       setIsGoogleLoading(false);
     }
-    // The redirect will be handled by the OAuth flow
   };
 
   return (
@@ -76,14 +114,16 @@ export function LoginForm() {
     >
       <Card className="border shadow-sm">
         <CardContent className="pt-6">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Authentication Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
-              {error && (
-                <div className="p-3 bg-destructive/10 text-destructive text-sm rounded-md">
-                  {error}
-                </div>
-              )}
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
