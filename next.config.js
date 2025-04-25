@@ -2,8 +2,8 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove static export to enable server-side rendering
-  // output: 'export',
+  // We're using server components, so SSR should be enabled
+  // output: 'export', // Explicitly remove static export
   distDir: '.next',
   images: {
     // Enable image optimization since we're using server-side rendering
@@ -26,13 +26,15 @@ const nextConfig = {
   // Skip SSG for auth callback route which requires useSearchParams
   skipMiddlewareUrlNormalize: true,
   skipTrailingSlashRedirect: true,
+  // Configure swcMinify
+  swcMinify: true,
   // Force specific routes to be always dynamic
   experimental: {
     // Use the correct experimental options for Next.js 15
     serverActions: {},
   },
   // Add explicit route configuration
-  // This ensures these routes are always rendered as client-side
+  // This ensures these routes are always rendered as server-side
   rewrites: async () => {
     return {
       beforeFiles: [

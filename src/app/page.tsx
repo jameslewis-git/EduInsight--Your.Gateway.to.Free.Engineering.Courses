@@ -8,11 +8,13 @@ import { CourseGrid } from "@/components/courses/CourseGrid";
 import { popularCourses, topRatedCourses } from "@/lib/data/courses";
 import { HeroSectionDemo } from "@/components/ui/demos/hero-section-demo";
 import { HomePageErrorHandler } from "@/components/auth/HomePageErrorHandler";
+import type { Course } from "@/lib/types"; // Import the Course type explicitly
 
 export default function HomePage() {
   // Only show the first 8 courses on the home page
-  const topPopularCourses = popularCourses.slice(0, 8);
-  const topRatedCoursesShort = topRatedCourses.slice(0, 8);
+  // Cast the course arrays to the common Course type for type safety
+  const topPopularCourses = popularCourses.slice(0, 8) as Course[];
+  const topRatedCoursesShort = topRatedCourses.slice(0, 8) as Course[];
   
   return (
     <>

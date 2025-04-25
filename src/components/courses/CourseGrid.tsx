@@ -102,7 +102,18 @@ export function CourseGrid({
           // Render courses using the courses prop
           courses.map((course) => (
             <motion.div key={course.id} variants={item}>
-              <CourseCard {...course} />
+              <CourseCard 
+                id={course.id}
+                title={course.title}
+                provider={course.provider}
+                institution={course.institution || ''}
+                link={course.link}
+                image={course.image || ''}
+                rating={course.rating || 0}
+                reviewCount={course.reviewCount || 0}
+                category={course.category || ''}
+                isFree={course.isFree}
+              />
             </motion.div>
           ))
         ) : Array.isArray(children) ? (

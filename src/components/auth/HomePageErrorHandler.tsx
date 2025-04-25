@@ -2,9 +2,11 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 
-export function HomePageErrorHandler() {
+// Create a separate component that uses the search params
+function SearchParamsHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -36,4 +38,13 @@ export function HomePageErrorHandler() {
   
   // This component doesn't render anything
   return null;
+}
+
+// Wrap the component that uses useSearchParams in a Suspense boundary
+export function HomePageErrorHandler() {
+  return (
+    <Suspense fallback={null}>
+      <SearchParamsHandler />
+    </Suspense>
+  );
 } 

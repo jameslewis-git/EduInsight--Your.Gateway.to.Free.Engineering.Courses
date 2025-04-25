@@ -4,14 +4,18 @@ export interface Course {
   provider: string;
   institution?: string;
   link: string;
-  image: string;
-  rating: number;
-  reviewCount: number;
-  category: string;
+  image?: string;
+  rating?: number;
+  reviewCount?: number;
+  category?: string;
   isFree?: boolean;
   price?: number;
   duration?: string;
   level?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+  description?: string;
+  certificate?: boolean;
+  skills?: string[];
+  enrollmentCount?: number;
 }
 
 export type SortOption = 'popular' | 'rating' | 'newest' | 'relevant' | 'price-low' | 'price-high';
