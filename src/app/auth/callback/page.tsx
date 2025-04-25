@@ -85,11 +85,42 @@ function CallbackHandler() {
         setStatus("Exchanging authentication code for session...");
         
         // Exchange the code for a session
-        const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
-        
-        if (sessionError) {
-          console.error("Error exchanging code for session:", sessionError);
-          setError(sessionError.message);
+        try {
+          const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+          
+          if (sessionError) {
+            // Handle specific error for missing code verifier
+            if (sessionError.message.includes('code verifier should be non-empty') && retryCount < 5) {
+              console.log(`Code verifier issue detected, retrying (${retryCount + 1}/5)...`);
+              setStatus(`Authentication in progress... (Attempt ${retryCount + 1}/5)`);
+              
+              // Short delay before retrying
+              setTimeout(() => {
+                setRetryCount(prev => prev + 1);
+              }, 1000);
+              return;
+            }
+            
+            console.error("Error exchanging code for session:", sessionError);
+            setError(sessionError.message);
+            return;
+          }
+        } catch (exchangeError) {
+          console.error("Exception during code exchange:", exchangeError);
+          
+          // For certain errors, we want to check if the user is already logged in
+          // This can happen if the code was already used
+          const { data: userCheck } = await supabase.auth.getUser();
+          if (userCheck.user) {
+            console.log("User appears to be authenticated despite exchange error");
+            setStatus("Authentication verified. Redirecting...");
+            setTimeout(() => {
+              router.push('/dashboard');
+            }, 1000);
+            return;
+          }
+          
+          setError("Failed to complete authentication. Please try logging in again.");
           return;
         }
         

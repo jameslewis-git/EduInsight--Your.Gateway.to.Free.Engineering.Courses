@@ -26,6 +26,30 @@ const nextConfig = {
   // Skip SSG for auth callback route which requires useSearchParams
   skipMiddlewareUrlNormalize: true,
   skipTrailingSlashRedirect: true,
+  // Force specific routes to be always dynamic
+  experimental: {
+    // Use the correct experimental options for Next.js 15
+    serverActions: {},
+  },
+  // Add explicit route configuration
+  // This ensures these routes are always rendered as client-side
+  rewrites: async () => {
+    return {
+      beforeFiles: [
+        {
+          source: '/auth/callback/',
+          destination: '/auth/callback/index.html',
+          has: [
+            {
+              type: 'query',
+              key: 'code',
+              value: '(?<code>.*)',
+            },
+          ],
+        },
+      ],
+    };
+  },
 };
 
 export default nextConfig;

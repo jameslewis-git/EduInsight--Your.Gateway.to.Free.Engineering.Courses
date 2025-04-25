@@ -98,6 +98,19 @@ export async function signInWithGoogle() {
       return { user: userData.user, error: null };
     }
     
+    // Check for any stored pkce in localStorage and clear it to prevent conflicts
+    try {
+      if (localStorage.getItem('supabase.auth.token')) {
+        console.log('Clearing existing PKCE data from local storage');
+        localStorage.removeItem('supabase.auth.token');
+      }
+    } catch (e) {
+      console.log('Unable to access localStorage, continuing without clearing');
+    }
+    
+    // Generate random state to enhance security
+    const randomState = Math.random().toString(36).substring(2, 15);
+    
     // Proceed with OAuth flow
     console.log('Initiating OAuth flow with Google...');
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -106,8 +119,10 @@ export async function signInWithGoogle() {
         redirectTo: callbackUrl,
         skipBrowserRedirect: false, // Force the standard redirect flow
         queryParams: {
-          // Keep state parameter simple to avoid encoding issues
+          // Include parameters to improve the OAuth flow
           prompt: 'select_account', // Always show Google account selector
+          access_type: 'offline', // Request refresh token
+          state: randomState, // Add state for security
         }
       },
     });
