@@ -13,6 +13,7 @@ function CallbackHandler() {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("Initializing authentication...");
   const [retryCount, setRetryCount] = useState(0);
+  const [maxRetries] = useState(5); // Allow more retries for potential network delays
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -63,6 +64,11 @@ function CallbackHandler() {
         if (errorParam) {
           console.error("Auth error from provider:", errorParam, errorDescription);
           setError(`Error from authentication provider: ${errorDescription || errorParam}`);
+          
+          // Also redirect back to login after displaying error
+          setTimeout(() => {
+            router.push(`/login?error=${errorParam}`);
+          }, 3000);
           return;
         }
         
@@ -70,14 +76,14 @@ function CallbackHandler() {
         
         // If code is missing but we're within retry attempts, try again
         if (!code) {
-          if (retryCount < 3) {
-            console.log(`No code parameter found, retrying (${retryCount + 1}/3)...`);
-            setStatus(`Waiting for authentication data... (Attempt ${retryCount + 1}/3)`);
+          if (retryCount < maxRetries) {
+            console.log(`No code parameter found, retrying (${retryCount + 1}/${maxRetries})...`);
+            setStatus(`Waiting for authentication data... (Attempt ${retryCount + 1}/${maxRetries})`);
             
-            // Wait and retry
+            // Wait and retry with increasing delay
             setTimeout(() => {
               setRetryCount(prev => prev + 1);
-            }, 1000);
+            }, 1000 * (retryCount + 1)); // Increase delay with each retry
             return;
           } else {
             console.error("No code parameter found in URL after retries");
@@ -95,6 +101,10 @@ function CallbackHandler() {
             }
             
             setError("Authentication code missing. Please try again or clear your browser cache.");
+            // Also redirect back to login after displaying error
+            setTimeout(() => {
+              router.push('/login?error=code_missing');
+            }, 3000);
             return;
           }
         }
@@ -108,19 +118,24 @@ function CallbackHandler() {
           
           if (sessionError) {
             // Handle specific error for missing code verifier
-            if (sessionError.message.includes('code verifier should be non-empty') && retryCount < 5) {
-              console.log(`Code verifier issue detected, retrying (${retryCount + 1}/5)...`);
-              setStatus(`Authentication in progress... (Attempt ${retryCount + 1}/5)`);
+            if (sessionError.message.includes('code verifier should be non-empty') && retryCount < maxRetries) {
+              console.log(`Code verifier issue detected, retrying (${retryCount + 1}/${maxRetries})...`);
+              setStatus(`Authentication in progress... (Attempt ${retryCount + 1}/${maxRetries})`);
               
-              // Short delay before retrying
+              // Add a short delay before retrying with increasing duration
               setTimeout(() => {
                 setRetryCount(prev => prev + 1);
-              }, 1000);
+              }, 1000 * (retryCount + 1)); // Increase delay with each retry
               return;
             }
             
             console.error("Error exchanging code for session:", sessionError);
             setError(sessionError.message);
+            
+            // Also redirect back to login after displaying error
+            setTimeout(() => {
+              router.push(`/login?error=exchange_failed&message=${encodeURIComponent(sessionError.message)}`);
+            }, 3000);
             return;
           }
         } catch (exchangeError) {
@@ -139,6 +154,10 @@ function CallbackHandler() {
           }
           
           setError("Failed to complete authentication. Please try logging in again.");
+          // Also redirect back to login after displaying error
+          setTimeout(() => {
+            router.push('/login?error=exchange_exception');
+          }, 3000);
           return;
         }
         
@@ -151,6 +170,11 @@ function CallbackHandler() {
         if (!data.user) {
           console.error("Session created but no user found");
           setError("Authentication completed but user data couldn't be retrieved.");
+          
+          // Also redirect back to login after displaying error
+          setTimeout(() => {
+            router.push('/login?error=no_user_found');
+          }, 3000);
           return;
         }
         
@@ -165,11 +189,16 @@ function CallbackHandler() {
       } catch (err) {
         console.error('Error handling auth callback:', err);
         setError('An unexpected error occurred during authentication.');
+        
+        // Also redirect back to login after displaying error
+        setTimeout(() => {
+          router.push('/login?error=callback_error');
+        }, 3000);
       }
     };
 
     handleCallback();
-  }, [router, searchParams, retryCount]); // Added retryCount to dependencies
+  }, [router, searchParams, retryCount, maxRetries]); // Added maxRetries to dependencies
 
   return (
     <div className="text-center">

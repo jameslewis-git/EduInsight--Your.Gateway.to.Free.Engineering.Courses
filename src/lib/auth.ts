@@ -7,6 +7,11 @@ export type AuthError = {
 // Sign up with email and password
 export async function signUp(email: string, password: string, name: string) {
   try {
+    // Clear any existing sessions first
+    await supabase.auth.signOut();
+    
+    console.log('Starting signup process for:', email);
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -15,24 +20,37 @@ export async function signUp(email: string, password: string, name: string) {
         data: {
           full_name: name
         },
-        // Disable email confirmation
-        emailRedirectTo: undefined,
+        // Redirect after email verification (if needed)
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       }
     });
 
     if (error) {
+      console.error('Signup error:', error);
       return { user: null, error: { message: error.message } };
+    }
+
+    // If the user was created successfully but needs email verification
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      return {
+        user: data.user,
+        error: { 
+          message: 'Your account requires email verification. Please check your email for the verification link.' 
+        }
+      };
     }
 
     // If the user was created successfully, immediately sign them in
     if (data.user) {
+      console.log('User created successfully, attempting sign in');
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
-        return { user: null, error: { message: signInError.message } };
+        console.error('Auto sign-in error after signup:', signInError);
+        return { user: data.user, error: { message: 'Account created. Please sign in manually.' } };
       }
 
       return { user: signInData.user, error: null };
@@ -40,9 +58,10 @@ export async function signUp(email: string, password: string, name: string) {
 
     return { user: data.user, error: null };
   } catch (error) {
+    console.error('Unexpected error during signup:', error);
     return {
       user: null,
-      error: { message: 'An unexpected error occurred during sign up.' },
+      error: { message: 'An unexpected error occurred during sign up. Please try again.' },
     };
   }
 }
@@ -50,20 +69,48 @@ export async function signUp(email: string, password: string, name: string) {
 // Sign in with email and password
 export async function signIn(email: string, password: string) {
   try {
+    // Clear any existing sessions first to prevent conflicts
+    await supabase.auth.signOut();
+    
+    console.log('Starting signin process for:', email);
+    
+    // Try to clear localStorage to prevent stale tokens
+    try {
+      const authKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('supabase.auth.')
+      );
+      
+      if (authKeys.length > 0) {
+        console.log('Clearing stale auth tokens');
+        authKeys.forEach(key => localStorage.removeItem(key));
+      }
+    } catch (e) {
+      console.log('Unable to access localStorage:', e);
+    }
+    
+    // Attempt signin
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
+      console.error('Signin error:', error);
       return { user: null, error: { message: error.message } };
     }
 
+    if (!data.user) {
+      console.error('No user returned despite successful signin');
+      return { user: null, error: { message: 'Authentication failed. Please try again.' } };
+    }
+    
+    console.log('Authentication successful');
     return { user: data.user, error: null };
   } catch (error) {
+    console.error('Unexpected error during signin:', error);
     return {
       user: null,
-      error: { message: 'An unexpected error occurred during sign in.' },
+      error: { message: 'An unexpected error occurred during sign in. Please try again.' },
     };
   }
 }

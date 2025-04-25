@@ -28,6 +28,7 @@ function ErrorHandler() {
     const errorParam = searchParams.get('error');
     const errorCode = searchParams.get('error_code');
     const errorDescription = searchParams.get('error_description');
+    const errorMessage = searchParams.get('message');
     
     // Handle specific error codes
     if (errorCode === 'bad_oauth_state') {
@@ -39,9 +40,19 @@ function ErrorHandler() {
       });
     } else if (errorParam === 'session_expired') {
       setErrorMessage('Your authentication session expired. Please sign in again.');
+    } else if (errorParam === 'code_missing') {
+      setErrorMessage('Authentication code was missing. This may be caused by browser security settings or extensions. Please try again with a different browser.');
+    } else if (errorParam === 'exchange_failed') {
+      setErrorMessage(errorMessage || 'Failed to authenticate. Please ensure cookies are enabled and try again.');
+    } else if (errorParam === 'exchange_exception') {
+      setErrorMessage('An unexpected error occurred during authentication. Please try again.');
+    } else if (errorParam === 'no_user_found') {
+      setErrorMessage('Authentication was processed but user data not found. Please try signing in again.');
+    } else if (errorParam === 'callback_error') {
+      setErrorMessage('Authentication callback failed. Please try again later.');
     } else if (errorParam) {
       // Handle any other error in the URL
-      setErrorMessage(errorDescription || `Authentication error: ${errorParam}`);
+      setErrorMessage(errorDescription || errorMessage || `Authentication error: ${errorParam}`);
     }
     
     // Clean up the URL if it contains error parameters
