@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -65,6 +66,11 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="flex gap-2 mt-4 md:mt-0">
+                <Button size="sm" variant="outline" className="gap-1" asChild>
+                  <Link href="/dashboard/notifications-test">
+                    <Bell className="h-4 w-4 mr-1" /> Test Notifications
+                  </Link>
+                </Button>
                 <Button size="sm" variant="outline" className="gap-1">
                   <Bell className="h-4 w-4 mr-1" /> Notifications
                 </Button>

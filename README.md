@@ -91,7 +91,41 @@ The authentication flow integrates with Supabase and includes:
 - Auth callback handling
 - Session management
 
-## Getting Started
+## Deploying to Netlify
+
+When deploying to Netlify, follow these steps to ensure authentication works correctly:
+
+### 1. Configure Supabase Authentication Settings
+
+1. Go to your [Supabase Dashboard](https://app.supabase.com/)
+2. Select your project
+3. Navigate to **Authentication** > **URL Configuration**
+4. Update the following settings:
+   - **Site URL**: Set this to your Netlify domain (e.g., `https://your-app.netlify.app`)
+   - **Redirect URLs**: Add your Netlify domain callback URL: `https://your-app.netlify.app/auth/callback`
+
+### 2. Set Environment Variables in Netlify
+
+1. Go to your Netlify dashboard
+2. Navigate to **Site settings** > **Environment variables**
+3. Add the following environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+### 3. Redeploy Your Application
+
+After making these changes, trigger a new deployment to apply the changes.
+
+## Troubleshooting Authentication Issues
+
+If authentication redirects to localhost after deployment:
+
+1. Make sure your Supabase URL Configuration is correctly set to your Netlify domain
+2. Verify that your application is using `window.location.origin` for redirect URLs
+3. Check browser console for any redirect-related errors
+4. Ensure your Netlify toml file has the proper redirect configuration for auth callback
+
+## Development Setup
 
 ```bash
 # Install dependencies
@@ -99,9 +133,16 @@ npm install
 
 # Run development server
 npm run dev
+```
 
-# Build for production
+## Build for Production
+
+```bash
+# Build the application
 npm run build
+
+# Start production server
+npm start
 ```
 
 ## Future Roadmap

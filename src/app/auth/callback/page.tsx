@@ -11,24 +11,54 @@ function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("Initializing authentication...");
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        setStatus("Processing authentication callback...");
+        console.log("Auth callback initiated. Current URL:", window.location.href);
+        
         const code = searchParams.get('code');
         
-        if (code) {
-          // Exchange the code for a session
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          
-          if (error) {
-            setError(error.message);
-            return;
-          }
+        if (!code) {
+          console.error("No code parameter found in URL");
+          setError("Authentication code missing. Please try again.");
+          return;
         }
         
-        // Redirect to dashboard after successful authentication
-        router.push('/dashboard');
+        console.log("Auth code found, exchanging for session...");
+        setStatus("Exchanging authentication code for session...");
+        
+        // Exchange the code for a session
+        const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+        
+        if (sessionError) {
+          console.error("Error exchanging code for session:", sessionError);
+          setError(sessionError.message);
+          return;
+        }
+        
+        console.log("Session established successfully, checking auth state...");
+        setStatus("Verifying authentication...");
+        
+        // Verify the session was created successfully by getting the user
+        const { data } = await supabase.auth.getUser();
+        
+        if (!data.user) {
+          console.error("Session created but no user found");
+          setError("Authentication completed but user data couldn't be retrieved.");
+          return;
+        }
+        
+        console.log("Authentication successful, redirecting to dashboard...");
+        setStatus("Authentication successful! Redirecting...");
+        
+        // Use a short timeout to ensure the user sees the success message
+        setTimeout(() => {
+          // Redirect to dashboard after successful authentication
+          router.push('/dashboard');
+        }, 1000);
       } catch (err) {
         console.error('Error handling auth callback:', err);
         setError('An unexpected error occurred during authentication.');
@@ -59,7 +89,8 @@ function CallbackHandler() {
       ) : (
         <>
           <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-lg">Completing your sign in...</p>
+          <p className="text-lg mb-2">{status}</p>
+          <p className="text-sm text-muted-foreground">This will only take a moment...</p>
         </>
       )}
     </div>

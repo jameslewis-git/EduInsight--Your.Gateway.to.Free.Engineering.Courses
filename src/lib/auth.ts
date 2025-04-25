@@ -71,10 +71,16 @@ export async function signIn(email: string, password: string) {
 // Sign in with Google
 export async function signInWithGoogle() {
   try {
+    // Get the current origin (will be Netlify URL in production or localhost in development)
+    const origin = window.location.origin;
+    const callbackUrl = `${origin}/auth/callback`;
+    
+    console.log('Using redirect URL:', callbackUrl);
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl,
       },
     });
 
@@ -82,7 +88,8 @@ export async function signInWithGoogle() {
       return { user: null, error: { message: error.message } };
     }
 
-    return { user: data.user, error: null };
+    // The OAuth flow will redirect the user, so we won't have a user object here
+    return { error: null };
   } catch (error) {
     return {
       user: null,

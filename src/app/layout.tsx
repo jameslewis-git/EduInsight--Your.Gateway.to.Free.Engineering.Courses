@@ -4,6 +4,8 @@ import "./globals.css";
 import ClientBody from "./ClientBody";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/auth-context";
+import { NotificationProvider } from "@/components/ui/toast-notification";
+import { CenterPopupProvider } from "@/components/center-popup-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,9 +36,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <CenterPopupProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                {children}
+              </NotificationProvider>
+            </AuthProvider>
+          </CenterPopupProvider>
         </ThemeProvider>
       </ClientBody>
     </html>
