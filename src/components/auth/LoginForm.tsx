@@ -18,20 +18,16 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export function LoginForm() {
-  const router = useRouter();
+// Separate the URL parameter handling to a client component
+function ErrorHandler() {
   const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Check for error parameters in URL
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
   useEffect(() => {
     const errorParam = searchParams.get('error');
     
     if (errorParam === 'session_expired') {
-      setError('Your authentication session expired. Please sign in again.');
+      setErrorMessage('Your authentication session expired. Please sign in again.');
       
       // Clear the URL parameter without refreshing the page
       if (typeof window !== 'undefined') {
@@ -54,6 +50,22 @@ export function LoginForm() {
       }
     }
   }, [searchParams]);
+  
+  return errorMessage ? (
+    <Alert variant="destructive" className="mb-4">
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>Authentication Error</AlertTitle>
+      <AlertDescription>{errorMessage}</AlertDescription>
+    </Alert>
+  ) : null;
+}
+
+export function LoginForm() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -114,6 +126,8 @@ export function LoginForm() {
     >
       <Card className="border shadow-sm">
         <CardContent className="pt-6">
+          <ErrorHandler />
+          
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
