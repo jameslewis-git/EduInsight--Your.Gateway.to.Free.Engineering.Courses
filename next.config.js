@@ -2,10 +2,19 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Remove static export to enable server-side rendering
+  // output: 'export',
   distDir: '.next',
   images: {
-    unoptimized: true,
+    // Enable image optimization since we're using server-side rendering
+    unoptimized: false,
+    domains: ['source.unsplash.com', 'images.unsplash.com', 'img-c.udemycdn.com', 'prod-discovery.edx-cdn.org', 'd3njjcbhbojbot.cloudfront.net'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   trailingSlash: true,
   typescript: {
