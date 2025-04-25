@@ -28,6 +28,8 @@ EduInsight brings together courses from many educational platforms to help learn
 - ✅ Subject browsing interface
 - ✅ Course listings with filtering
 - ✅ Authentication flow (login, signup, callback)
+  - ✅ Direct login after signup (no email verification required)
+  - ✅ Google Authentication integration
 - ✅ Dashboard with course progress tracking
 - ✅ User profile and settings
 - ✅ Report page with data visualization
@@ -59,6 +61,14 @@ Several challenges were overcome for successful deployment:
 
 ## Development Notes
 
+### Authentication System Updates
+
+The authentication system has been streamlined for better user experience:
+
+- **Direct Login**: Users are now automatically redirected to the homepage after successful signup without requiring email verification
+- **Google Authentication**: Added social login option with Google for one-click authentication
+- **Simplified Flow**: Removed email verification step to reduce friction in the user onboarding process
+
 ### Static Export with Dynamic Routes
 
 The project uses Next.js static export (`output: 'export'`) while supporting dynamic routes with client-side data fetching. This required special configuration:
@@ -75,8 +85,9 @@ The project uses Next.js static export (`output: 'export'`) while supporting dyn
 ### Authentication Flow
 
 The authentication flow integrates with Supabase and includes:
-- Login/Signup pages
-- Email confirmation
+- Login/Signup pages with password-based authentication
+- Google social login integration
+- Direct redirect to homepage after signup (no email verification)
 - Auth callback handling
 - Session management
 

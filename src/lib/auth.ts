@@ -15,13 +15,27 @@ export async function signUp(email: string, password: string, name: string) {
         data: {
           full_name: name
         },
-        // Redirect to the client-side page instead of the route
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // Disable email confirmation
+        emailRedirectTo: undefined,
       }
     });
 
     if (error) {
       return { user: null, error: { message: error.message } };
+    }
+
+    // If the user was created successfully, immediately sign them in
+    if (data.user) {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        return { user: null, error: { message: signInError.message } };
+      }
+
+      return { user: signInData.user, error: null };
     }
 
     return { user: data.user, error: null };
@@ -50,6 +64,29 @@ export async function signIn(email: string, password: string) {
     return {
       user: null,
       error: { message: 'An unexpected error occurred during sign in.' },
+    };
+  }
+}
+
+// Sign in with Google
+export async function signInWithGoogle() {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      return { user: null, error: { message: error.message } };
+    }
+
+    return { user: data.user, error: null };
+  } catch (error) {
+    return {
+      user: null,
+      error: { message: 'An unexpected error occurred during Google sign in.' },
     };
   }
 }
